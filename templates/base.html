@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Memory | الذاكرة الوطنية عبر الجغرافيا الرقمية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { dzGreen: '#006633', dzGold: '#D4AF37' } } } }
+    </script>
+    <style>
+        /* أنماط الـ CSS */
+        .geo-bg-container { position: relative; background-color: #09090b; overflow: hidden; }
+        .dropdown:hover .dropdown-menu { display: block !important; }
+    </style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans scroll-smooth">
+{% include 'site_header.html' %}
+
+
+    
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    
+
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+{% include 'site_footer.html' %}
+</body>
+</html>

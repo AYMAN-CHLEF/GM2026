@@ -1,0 +1,17 @@
+{% load static %}
+<footer class="gm-footer">
+  <div class="gm-footer-inner">
+    <a class="gm-footer-brand" href="{% url 'home' %}">
+      <img src="{% static 'images/Geo-Memory.jpeg' %}" alt="">
+      <span>Geo-<b>Memory</b></span>
+    </a>
+    <p id="footer-desc" class="gm-footer-summary" data-gm-i18n="footer-summary">تطوير هندسي مبتكر لحفظ الذاكرة عبر نظم المعلومات الجغرافية والتقنيات الرقمية المتقدمة.</p>
+    {% if request.resolver_match.url_name == 'digital_twin_dashboard' %}<p id="docker-note" class="gm-footer-summary">بيئة محلية معزولة لحماية سيادة البيانات التراثية.</p>{% endif %}
+    <div class="gm-social" aria-label="حسابات Geo-Memory">
+      <a href="https://www.facebook.com/profile.php?id=61591603091721" target="_blank" rel="noopener noreferrer" aria-label="Facebook">f</a>
+      <a href="https://www.instagram.com/geo.memory2026/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">◎</a>
+      <a href="https://www.linkedin.com/in/geo-memory-113418424/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+    </div>
+    <p class="gm-copyright" data-gm-i18n="copyright">© 2026 جميع الحقوق محفوظة لمؤسسة Geo-Memory.</p>
+  </div>
+</footer>

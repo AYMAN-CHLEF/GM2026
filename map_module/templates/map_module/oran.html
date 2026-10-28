@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة وهران</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="{% static 'css/oran.css' %}" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { width: 100vw; height: 100%; }
+    </style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body>
+{% include 'site_header.html' %}
+    <div class="full-screen-map">
+    <div id="map"></div>
+    <div id="map-sources-overlay">
+            <div class="mini-card">
+                <h4>📜 مصادر التوثيق</h4>
+                <p>مديرية المجاهدين وذوي الحقوق - وهران</p>
+                <p>مكتبة متحف المجاهد - وهران</p>
+                <p>مراجع علمية وتاريخية</p>
+            </div>
+            <div id="reopen-icon" onclick="showMapSources()">ℹ️</div>
+        </div>
+
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-hash/0.2.1/leaflet-hash.min.js"></script>
+
+    <script src="{% static 'js/map_engine.js' %}"></script>
+    
+    <script src="{% static 'js/_1.js' %}"></script>
+    <script src="{% static 'js/_2.js' %}"></script>
+    <script src="{% static 'js/_3.js' %}"></script>
+    <script src="{% static 'js/_4.js' %}"></script>
+    <script src="{% static 'js/_5.js' %}"></script>
+    <script src="{% static 'js/_6.js' %}"></script>
+
+    
+    
+    <script src="{% static 'js/oran.js' %}"></script>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+    <script>
+        // المتغيرات المطلوبة للمسارات
+        var staticUrl = "{% static '' %}";
+
+        // تشغيل المحرك مرة واحدة فقط
+        const myMap = OranMap.init('map', [35.6977, -0.6375], 13);
+        
+        // استخدام دالة addLayer التي صممتها (فهي أذكى من drawPolygon/drawPoint)
+        // التأكد من وجود المتغيرات قبل إضافتها لتجنب أخطاء undefined
+        if(window.json__1) OranMap.addLayer(window.json__1, "#1b5e20");
+        if(window.json__2) OranMap.addLayer(window.json__2);
+        if(window.json__3) OranMap.addLayer(window.json__3);
+        if(window.json__4) OranMap.addLayer(window.json__4);
+        if(window.json__5) OranMap.addLayer(window.json__5);
+        if(window.json__6) OranMap.addLayer(window.json__6);
+    </script>
+{% include 'site_footer.html' %}
+</body>
+</html>

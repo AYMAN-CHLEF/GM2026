@@ -1,0 +1,13 @@
+{% extends 'registration/auth_base.html' %}
+{% block title %}{% if LANGUAGE_CODE == 'fr' %}Confirmation du compte{% elif LANGUAGE_CODE == 'en' %}Account confirmation{% elif LANGUAGE_CODE == 'tr' %}Hesap doğrulama{% elif LANGUAGE_CODE == 'es' %}Confirmación de la cuenta{% else %}تأكيد الحساب{% endif %} | Geo-Memory{% endblock %}
+{% block content %}
+{% if valid_link %}
+  <h1 class="text-2xl font-black text-dzGreen">{% if LANGUAGE_CODE == 'fr' %}Confirmez votre adresse e-mail{% elif LANGUAGE_CODE == 'en' %}Confirm your email address{% elif LANGUAGE_CODE == 'tr' %}E-posta adresinizi doğrulayın{% elif LANGUAGE_CODE == 'es' %}Confirma tu correo electrónico{% else %}أكد بريدك الإلكتروني{% endif %}</h1>
+  <p class="mt-3 text-gray-600">{% if LANGUAGE_CODE == 'fr' %}Confirmez pour activer votre compte Geo-Memory.{% elif LANGUAGE_CODE == 'en' %}Confirm to activate your Geo-Memory account.{% elif LANGUAGE_CODE == 'tr' %}Geo-Memory hesabınızı etkinleştirmek için onaylayın.{% elif LANGUAGE_CODE == 'es' %}Confirma para activar tu cuenta Geo-Memory.{% else %}اضغط لتفعيل حسابك في Geo-Memory.{% endif %}</p>
+  <form method="post" class="auth-form mt-6">{% csrf_token %}<input type="hidden" name="token" value="{{ token }}"><button type="submit">{% if LANGUAGE_CODE == 'fr' %}Activer mon compte{% elif LANGUAGE_CODE == 'en' %}Activate account{% elif LANGUAGE_CODE == 'tr' %}Hesabı etkinleştir{% elif LANGUAGE_CODE == 'es' %}Activar cuenta{% else %}تفعيل الحساب{% endif %}</button></form>
+{% else %}
+  <h1 class="text-2xl font-black text-red-700">{% if LANGUAGE_CODE == 'fr' %}Lien invalide ou expiré{% elif LANGUAGE_CODE == 'en' %}Link invalid or expired{% elif LANGUAGE_CODE == 'tr' %}Bağlantı geçersiz veya süresi dolmuş{% elif LANGUAGE_CODE == 'es' %}Enlace no válido o caducado{% else %}الرابط غير صالح أو منتهي الصلاحية{% endif %}</h1>
+  <p class="mt-3 text-gray-600">{% if LANGUAGE_CODE == 'fr' %}Demandez un nouveau lien de confirmation.{% elif LANGUAGE_CODE == 'en' %}Request a new confirmation link.{% elif LANGUAGE_CODE == 'tr' %}Yeni bir doğrulama bağlantısı isteyin.{% elif LANGUAGE_CODE == 'es' %}Solicita un nuevo enlace de confirmación.{% else %}اطلب رابط تأكيد جديداً لإكمال التسجيل.{% endif %}</p>
+  <p class="mt-5"><a href="{% url 'verification_pending' %}">{% if LANGUAGE_CODE == 'fr' %}Renvoyer le lien{% elif LANGUAGE_CODE == 'en' %}Resend the link{% elif LANGUAGE_CODE == 'tr' %}Bağlantıyı yeniden gönder{% elif LANGUAGE_CODE == 'es' %}Reenviar el enlace{% else %}إعادة إرسال الرابط{% endif %}</a></p>
+{% endif %}
+{% endblock %}

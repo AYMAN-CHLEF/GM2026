@@ -1,0 +1,665 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}" class="dark" id="html-root">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Memory | منصة التكوين التقني العالمية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dzGreen: '#006633',
+                        dzGold: '#D4AF37',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        html[lang="ar"] body { 
+            font-family: 'Cairo', sans-serif; 
+            letter-spacing: -0.01em;
+        }
+        html[lang="en"] body { 
+            font-family: 'Inter', sans-serif; 
+        }
+
+        body {
+            background-color: #030712;
+            color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .html-light body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        
+        .glass-sidebar {
+            background: rgba(3, 7, 18, 0.94);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        [dir="rtl"] .glass-sidebar { border-left: 1px solid rgba(255, 255, 255, 0.07); border-right: none; }
+        [dir="ltr"] .glass-sidebar { border-right: 1px solid rgba(255, 255, 255, 0.07); border-left: none; }
+
+        .html-light [dir="rtl"] .glass-sidebar { background: rgba(255, 255, 255, 0.94); border-left: 1px solid rgba(0, 0, 0, 0.07); border-right: none; }
+        .html-light [dir="ltr"] .glass-sidebar { background: rgba(255, 255, 255, 0.94); border-right: 1px solid rgba(0, 0, 0, 0.07); border-left: none; }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.70);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .html-light .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(0, 0, 0, 0.07);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.25); border-radius: 10px; }
+        
+        #sidebar { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s ease; }
+        main { transition: margin 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .perspective-1000 { perspective: 1000px; }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flip-card-inner.flipped { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .flip-card-back { transform: rotateY(180deg); }
+    </style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="min-h-screen selection:bg-dzGreen selection:text-white transition-colors duration-300 relative overflow-x-hidden">
+{% include 'site_header.html' %}
+
+
+    <!-- خلفيات جمالية متطورة -->
+    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-dzGreen/15 to-transparent rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute top-1/3 right-10 w-[400px] h-[400px] bg-gradient-to-br from-dzGold/10 to-transparent rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- نافذة منبثقة (Modal) للخدمات قيد الإنجاز -->
+    <div id="service-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-card max-md:w-full max-w-md p-8 rounded-3xl border border-dzGold/30 text-center relative shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content-box">
+            <div class="w-16 h-16 bg-dzGold/10 border border-dzGold/30 text-dzGold rounded-2xl mx-auto flex items-center justify-center text-3xl mb-5 shadow-inner">
+                🚧
+            </div>
+            <h3 class="text-lg font-black text-slate-900 dark:text-white mb-2" data-translate="modal_title">الخدمة في طور الإنجاز</h3>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-6" data-translate="modal_desc">نعمل حالياً على تطوير وتفعيل بوابة الدفع والاشتراك الآلي لتقديم أفضل تجربة تكوينية. ترقبوا الإطلاق الرسمي قريباً!</p>
+            <button onclick="closeServiceModal()" class="w-full py-3 bg-gradient-to-r from-dzGold to-yellow-600 text-black font-black text-xs rounded-xl hover:opacity-90 transition shadow-lg shadow-dzGold/20" data-translate="modal_btn">
+                حسناً، فهمت
+            </button>
+        </div>
+    </div>
+
+    
+
+
+    <!-- نافذة إعدادات الحساب والصورة الشخصية (Settings Modal) -->
+<div id="settings-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+    <div class="glass-card max-md:w-full max-w-lg p-8 rounded-3xl border border-dzGold/30 text-right relative shadow-2xl transform scale-95 transition-transform duration-300" id="settings-content-box">
+        <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+            <h3 class="text-base font-black text-dzGold flex items-center gap-2">
+                <span>⚙️</span> <span data-translate="settings_title">إعدادات الملف التقني والحساب</span>
+            </h3>
+            <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-sm font-bold p-1">✕</button>
+        </div>
+
+        <!-- أضفنا مسار الـ action صراحة أو اتركه فارغاً ليقوم بإرسال البيانات لنفس الرابط الحالي -->
+        <form method="POST" enctype="multipart/form-data" action="" class="space-y-4">
+            {% csrf_token %}
+            
+            <!-- تغيير ومعاينة الصورة الشخصية للحساب -->
+            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                <div class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-dzGold shadow-md shrink-0">
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="{% static 'images/Geo-Memory.jpeg' %}" alt="Default Avatar" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                <div class="flex-1">
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5" data-translate="avatar_label">تحديث الصورة الشخصية للحساب</label>
+                    <input type="file" name="avatar" accept="image/*" class="w-full text-[11px] text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-dzGreen file:text-white hover:file:bg-emerald-700 transition cursor-pointer">
+                </div>
+            </div>
+
+            <!-- الفصل بين الاسم (First Name) واللقب (Last Name) -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">الاسم</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" class="w-full px-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white font-bold focus:outline-none focus:border-dzGold transition" placeholder="الاسم الشخصي">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">اللقب</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" class="w-full px-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white font-bold focus:outline-none focus:border-dzGold transition" placeholder="اللقب العائلي">
+                </div>
+            </div>
+
+            <!-- البريد الإلكتروني التقني -->
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1" data-translate="email_label">البريد الإلكتروني التقني</label>
+                <input type="email" value="{{ user.email }}" readonly aria-readonly="true" class="w-full px-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white font-bold opacity-75 cursor-not-allowed">
+            </div>
+
+            <div class="pt-4 flex gap-3">
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-dzGreen to-emerald-700 text-white font-black text-xs rounded-xl hover:opacity-90 transition shadow-lg shadow-dzGreen/20" data-translate="save_changes">
+                    حفظ التعديلات التقنية
+                </button>
+                <button type="button" onclick="closeSettingsModal()" class="w-1/3 py-3 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-700 transition" data-translate="cancel">
+                    إلغاء
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+    <!-- الحاوية العامة -->
+    <div class="min-h-screen flex relative z-10">
+        
+        <!-- خلفية معتمة للهواتف -->
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
+
+        <!-- الشريط الجانبي الثابت -->
+        <aside id="sidebar" class="fixed top-0 h-screen w-72 glass-sidebar flex flex-col justify-between p-6 z-45 shadow-2xl shrink-0">
+            <div>
+                <!-- الشعار وزر الإغلاق -->
+                <div class="flex items-center justify-between mb-10 px-2">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-dzGreen to-dzGold rounded-xl blur opacity-70"></div>
+                            <img src="{% static 'images/Geo-Memory.jpeg' %}" alt="Geo-Memory" class="relative w-11 h-11 object-cover rounded-xl shadow-md">
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-black tracking-wider text-slate-900 dark:text-white">
+                                <span class="text-dzGreen">Geo-</span><span class="text-dzGold">Memory</span>
+                            </h1>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-widest uppercase" data-translate="pro_academy">Professional Academy</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-dzGold p-1">✕</button>
+                </div>
+
+                <!-- التنقل الديناميكي -->
+                {% if active_course %}
+                    <div class="mb-4 px-2">
+                        <span class="text-[10px] text-dzGold font-extrabold tracking-wider uppercase bg-dzGold/10 px-2.5 py-1 rounded-lg border border-dzGold/20">
+                            📖 الدورة المفعلة حالياً
+                        </span>
+                        <h3 class="text-sm font-black text-slate-900 dark:text-white mt-2 leading-relaxed break-words">{{ active_course.title }}</h3>
+                    </div>
+
+                    <nav class="space-y-2 custom-scrollbar overflow-y-auto max-h-[calc(100vh-320px)]">
+                        {% for module in course_modules %}
+                            <a href="{{ module.get_absolute_url|default:'#' }}" class="flex items-center gap-3 px-4 py-2.5 {% if forloop.first %}bg-dzGreen/20 text-dzGold border-r-4 border-dzGreen{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/5{% endif %} rounded-xl font-bold text-xs transition">
+                                <span>{{ module.icon|default:"▶️" }}</span> <span class="leading-relaxed break-words">{{ module.title }}</span>
+                            </a>
+                        {% empty %}
+                            <p class="text-xs text-slate-500 px-3" data-translate="no_modules">لا توجد محاور مضافة لهذه الدورة بعد.</p>
+                        {% endfor %}
+                    </nav>
+
+                    <div class="mt-6 pt-4 border-t border-slate-200/50 dark:border-white/5">
+                        <a href="{% url 'gis:dashboard' %}" class="flex items-center justify-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-dzGold py-2 bg-slate-200/60 dark:bg-slate-800/40 rounded-xl transition border border-slate-300/40 dark:border-white/5" data-translate="back_to_dashboard">
+                            ⬅️ العودة للوحة التحكم العامة
+                        </a>
+                    </div>
+                {% else %}
+                    <nav class="space-y-2">
+                        <a href="{% url 'gis:dashboard' %}" class="flex items-center gap-3.5 px-4 py-3 bg-gradient-to-r from-dzGreen/25 to-transparent text-dzGold rounded-2xl font-black border-r-4 border-dzGreen transition-all shadow-sm">
+                            <span class="text-lg">📊</span> <span data-translate="dashboard">لوحة تحكم التدريب</span>
+                        </a>
+                        <a href="{% url 'gis:training' %}" class="flex items-center gap-3.5 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-dzGold hover:bg-slate-200/50 dark:hover:bg-white/5 rounded-2xl font-bold transition-all">
+                            <span class="text-lg">🌍</span> <span data-translate="gis_spec">تخصص الـ GIS والخرائط</span>
+                        </a>
+                        <button onclick="openSettingsModal()" class="w-full flex items-center gap-3.5 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-dzGold hover:bg-slate-200/50 dark:hover:bg-white/5 rounded-2xl font-bold transition-all text-right">
+                            <span class="text-lg">⚙️</span> <span data-translate="settings">إعدادات الحساب الشخصي</span>
+                        </button>
+                    </nav>
+                {% endif %}
+            </div>
+
+            <!-- أزرار التحكم السفلية -->
+            <div class="space-y-3 pt-6 border-t border-slate-200/60 dark:border-white/5">
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="toggleTheme()" class="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-dzGold transition font-bold text-xs border border-slate-300/40 dark:border-white/5">
+                        <span id="theme-icon">☀️</span> <span id="theme-text" data-translate="theme_light">المضيء</span>
+                    </button>
+                    <button onclick="toggleLanguage()" class="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-dzGold transition font-bold text-xs border border-slate-300/40 dark:border-white/5">
+                        <span>🌐</span> <span id="lang-btn-text">English</span>
+                    </button>
+                </div>
+                <form action="{% url 'logout' %}" method="post" class="w-full">{% csrf_token %}
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 text-xs font-bold p-3 hover:bg-red-500/10 rounded-xl transition border border-red-500/10">
+                        🚪 <span data-translate="logout">تسجيل الخروج</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- المحتوى الرئيسي للمنصة -->
+        <main id="main-content" class="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto h-screen custom-scrollbar min-w-0">
+            
+            <!-- الهيدر العلوي مع الصورة الشخصية الحقيقية -->
+            <header class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-6 rounded-3xl shadow-xl">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleSidebar()" class="text-dzGold p-2.5 bg-dzGreen/10 rounded-2xl border border-dzGreen/20 hover:bg-dzGreen/20 transition focus:outline-none shadow-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-wide" data-translate="welcome">مرحباً، {{ user.first_name|default:user.username }}</h2>
+                        <p class="text-slate-600 dark:text-slate-400 text-xs md:text-sm mt-1 font-medium" data-translate="welcome_sub">أهلاً بك في بيئة التكوين الاحترافية لـ Geo-Memory.</p>
+                    </div>
+                </div>
+
+                <!-- بطاقة المستخدم مع الصورة الشخصية المخصصة -->
+                <div onclick="openSettingsModal()" class="flex items-center gap-3 bg-slate-200/60 dark:bg-slate-800/40 px-4 py-2.5 rounded-2xl border border-slate-300/40 dark:border-white/5 shadow-sm cursor-pointer hover:border-dzGold transition">
+                    <div class="text-left hidden sm:block">
+                        <span class="block text-xs font-extrabold text-slate-900 dark:text-slate-200">{{ user.username }}</span>
+                        <span class="block text-[10px] text-dzGold font-bold" data-translate="student_status">طالب تقني معتمد</span>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl overflow-hidden border-2 border-dzGold shadow-md">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="Profile Avatar" class="w-full h-full object-cover">
+                        {% else %}
+                            <img src="{% static 'images/Geo-Memory.jpeg' %}" alt="Default Avatar" class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+
+            <!-- الإحصائيات (KPIs) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+                <div class="glass-card p-5 rounded-2xl flex items-center gap-4 shadow-lg">
+                    <div class="p-3.5 bg-dzGreen/20 text-dzGreen rounded-xl text-xl font-bold">📚</div>
+                    <div>
+                        <span class="block text-slate-600 dark:text-slate-400 text-xs font-bold" data-translate="stat_courses">الدورات المسجلة</span>
+                        <span class="text-xl font-black text-slate-900 dark:text-white">{{ enrolled_courses_count|default:"0" }}</span>
+                    </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl flex items-center gap-4 shadow-lg">
+                    <div class="p-3.5 bg-dzGold/20 text-dzGold rounded-xl text-xl font-bold">⚡</div>
+                    <div>
+                        <span class="block text-slate-600 dark:text-slate-400 text-xs font-bold" data-translate="stat_progress">معدل الإنجاز العام</span>
+                        <span class="text-xl font-black text-slate-900 dark:text-white">{{ overall_progress|default:"0" }}%</span>
+                    </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl flex items-center gap-4 shadow-lg">
+                    <div class="p-3.5 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-xl text-xl font-bold">🏆</div>
+                    <div>
+                        <span class="block text-slate-600 dark:text-slate-400 text-xs font-bold" data-translate="stat_certs">الشهادات المُكتسبة</span>
+                        <span class="text-xl font-black text-slate-900 dark:text-white">{{ certificates_count|default:"0" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فلاتر الدورات -->
+            <div class="flex flex-wrap gap-3 mb-8">
+                <a href="?type=all" class="px-6 py-2.5 {% if request.GET.type == 'all' or not request.GET.type %}bg-dzGreen text-white shadow-lg shadow-dzGreen/30 font-black{% else %}bg-slate-200/70 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-dzGreen/20 hover:text-dzGold font-bold{% endif %} rounded-xl text-xs transition-all border border-slate-300/40 dark:border-white/5" data-translate="filter_all">الكل</a>
+                <a href="?type=coding" class="px-6 py-2.5 {% if request.GET.type == 'coding' %}bg-dzGreen text-white shadow-lg shadow-dzGreen/30 font-black{% else %}bg-slate-200/70 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-dzGreen/20 hover:text-dzGold font-bold{% endif %} rounded-xl text-xs transition-all border border-slate-300/40 dark:border-white/5" data-translate="filter_coding">البرمجة وتقنية المعلومات</a>
+                <a href="?type=gis" class="px-6 py-2.5 {% if request.GET.type == 'gis' %}bg-dzGreen text-white shadow-lg shadow-dzGreen/30 font-black{% else %}bg-slate-200/70 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-dzGreen/20 hover:text-dzGold font-bold{% endif %} rounded-xl text-xs transition-all border border-slate-300/40 dark:border-white/5" data-translate="filter_gis">تخصص GIS والأنظمة الجغرافية</a>
+            </div>
+
+            <!-- شبكة بطاقات الدورات -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for course in courses %}
+                <div class="perspective-1000 h-[490px]">
+                    <div id="card-inner-{{ course.id }}" class="flip-card-inner rounded-3xl shadow-2xl">
+                        
+                        <!-- الوجه الأمامي -->
+                        <div class="flip-card-front glass-card p-6 rounded-3xl flex flex-col justify-between border border-white/5">
+                            <div>
+                                <div class="relative h-38 mb-4 rounded-2xl overflow-hidden shadow-md">
+                                    {% if course.image %}
+                                        <img src="{{ course.image.url }}" alt="{{ course.title }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full bg-gradient-to-br from-dzGreen/30 to-dzGold/30 flex items-center justify-center text-3xl">🌍</div>
+                                    {% endif %}
+                                    <span class="absolute top-3 right-3 px-3 py-1 bg-black/70 backdrop-blur-md text-dzGold text-[10px] font-black rounded-full border border-dzGold/30">
+                                        {{ course.category.name }}
+                                    </span>
+                                </div>
+                                <h3 class="text-base font-black text-slate-900 dark:text-white mb-2 leading-snug break-words min-h-[2.5rem]">{{ course.title }}</h3>
+                                <p class="text-slate-600 dark:text-slate-400 text-xs line-clamp-2 leading-relaxed mb-4 font-medium">{{ course.description }}</p>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-xs font-bold px-1">
+                                    <span class="text-slate-500 dark:text-slate-400" data-translate="course_price">السعر الأساسي:</span>
+                                    <span class="text-dzGold text-sm font-black">{% if course.price > 0 %}{{ course.price }} د.ج{% else %}<span data-translate="free">مجاني</span>{% endif %}</span>
+                                </div>
+                                <button onclick="flipCard('{{ course.id }}')" class="w-full py-3 bg-gradient-to-r from-dzGreen to-emerald-700 text-white text-center text-xs font-black rounded-xl hover:opacity-90 transition shadow-lg shadow-dzGreen/20 flex items-center justify-center gap-2">
+                                    <span>🎟️</span> <span data-translate="go_to_subscription">الاشتراك وكود الخصم</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- الوجه الخلفي -->
+                        <div class="flip-card-back glass-card p-6 rounded-3xl flex flex-col justify-between border border-dzGold/30 bg-[#070b14]">
+                            <div>
+                                <div class="flex justify-between items-center mb-6">
+                                    <h4 class="text-sm font-black text-dzGold flex items-center gap-2">
+                                        <span>🏷️</span> <span data-translate="sub_portal">بوابة الاشتراك السريع</span>
+                                    </h4>
+                                    <button onclick="flipCard('{{ course.id }}')" class="text-slate-400 hover:text-white text-xs font-bold p-1">
+                                        ✕ <span data-translate="back">عودة</span>
+                                    </button>
+                                </div>
+
+                                <p class="text-xs text-slate-300 mb-4 font-medium" data-translate="sub_desc">أدخل كود الخصم الخاص بك للحصول على التخفيض وتأكيد الانضمام لهذه الدورة فوراً.</p>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-[11px] text-slate-400 mb-1.5 font-bold" data-translate="promo_label">كود الخصم (Promo Code)</label>
+                                        <div class="flex gap-2">
+                                            <input type="text" placeholder="EX: GEO2026" class="w-full px-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-xl text-xs text-white font-bold focus:outline-none focus:border-dzGold transition">
+                                            <button class="px-4 py-2.5 bg-dzGold text-black font-black text-xs rounded-xl hover:bg-yellow-500 transition shadow-md" data-translate="apply">تطبيق</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 bg-white/5 rounded-xl border border-white/5 text-[11px] space-y-2">
+                                        <div class="flex justify-between text-slate-400 font-medium">
+                                            <span data-translate="price_before">السعر قبل الخصم:</span>
+                                            <span class="font-bold text-white">{% if course.price > 0 %}{{ course.price }} د.ج{% else %}0 د.ج{% endif %}</span>
+                                        </div>
+                                        <div class="flex justify-between text-dzGold font-black text-xs">
+                                            <span data-translate="final_price">السعر النهائي:</span>
+                                            <span>{% if course.price > 0 %}{{ course.price }} د.ج{% else %}مجاني{% endif %}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <button onclick="openServiceModal()" class="w-full py-3 bg-gradient-to-r from-dzGold to-yellow-600 text-black text-center text-xs font-black rounded-xl hover:opacity-90 transition shadow-lg shadow-dzGold/20" data-translate="confirm_sub">
+                                    تأكيد الاشتراك والانضمام
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-20 glass-card rounded-3xl shadow-2xl">
+                    <div class="text-4xl mb-3">📭</div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm mb-2 font-bold" data-translate="no_courses">لا توجد تدريبات تقنية متاحة في هذا التصنيف حالياً.</p>
+                    <span class="text-dzGold text-xs font-black tracking-wider" data-translate="coming_soon">ترقبوا إطلاق دورات جديدة قريباً!</span>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <!-- سكربت التحكم والترجمة -->
+    <script>
+        const translations = {
+            ar: {
+                dashboard: "لوحة تحكم التدريب",
+                settings: "إعدادات الحساب الشخصي",
+                gis_spec: "تخصص الـ GIS والخرائط",
+                logout: "تسجيل الخروج",
+                welcome: "مرحباً، {{ user.first_name|default:user.username }}",
+                welcome_sub: "أهلاً بك في بيئة التكوين الاحترافية لـ Geo-Memory.",
+                filter_all: "الكل",
+                filter_coding: "البرمجة وتقنية المعلومات",
+                filter_gis: "تخصص GIS والأنظمة الجغرافية",
+                free: "مجاني",
+                course_price: "السعر الأساسي:",
+                go_to_subscription: "الاشتراك وكود الخصم",
+                sub_portal: "بوابة الاشتراك السريع",
+                back: "عودة",
+                sub_desc: "أدخل كود الخصم الخاص بك للحصول على التخفيض وتأكيد الانضمام لهذه الدورة فوراً.",
+                promo_label: "كود الخصم (Promo Code)",
+                apply: "تطبيق",
+                price_before: "السعر قبل الخصم:",
+                final_price: "السعر النهائي:",
+                confirm_sub: "تأكيد الاشتراك والانضمام",
+                modal_title: "الخدمة في طور الإنجاز",
+                modal_desc: "نعمل حالياً على تطوير وتفعيل بوابة الدفع والاشتراك الآلي لتقديم أفضل تجربة تكوينية. ترقبوا الإطلاق الرسمي قريباً!",
+                modal_btn: "حسناً، فهمت",
+                no_courses: "لا توجد تدريبات تقنية متاحة في هذا التصنيف حالياً.",
+                no_modules: "لا توجد محاور مضافة لهذه الدورة بعد.",
+                back_to_dashboard: "⬅️ العودة للوحة التحكم العامة",
+                coming_soon: "ترقبوا إطلاق دورات جديدة قريباً!",
+                theme_light: "المضيء",
+                theme_dark: "المظلم",
+                pro_academy: "Professional Academy",
+                student_status: "طالب تقني معتمد",
+                stat_courses: "الدورات المسجلة",
+                stat_progress: "معدل الإنجاز العام",
+                stat_certs: "الشهادات المُكتسبة",
+                settings_title: "إعدادات الملف التقني والحساب",
+                avatar_label: "تحديث الصورة الشخصية للحساب",
+                fullname_label: "الاسم الكامل / اسم المستخدم",
+                email_label: "البريد الإلكتروني التقني",
+                save_changes: "حفظ التعديلات التقنية",
+                cancel: "إلغاء"
+            },
+            en: {
+                dashboard: "Training Dashboard",
+                settings: "Account Settings",
+                gis_spec: "GIS & Maps Specialty",
+                logout: "Logout",
+                welcome: "Welcome, {{ user.first_name|default:user.username }}",
+                welcome_sub: "Welcome to the professional training environment of Geo-Memory.",
+                filter_all: "All",
+                filter_coding: "Coding & IT",
+                filter_gis: "GIS & Geographic Systems",
+                free: "Free",
+                course_price: "Base Price:",
+                go_to_subscription: "Subscription & Promo",
+                sub_portal: "Quick Subscription Portal",
+                back: "Back",
+                sub_desc: "Enter your promo code to get a discount and instantly join this course.",
+                promo_label: "Promo Code",
+                apply: "Apply",
+                price_before: "Price before discount:",
+                final_price: "Final Price:",
+                confirm_sub: "Confirm Subscription & Join",
+                modal_title: "Service Under Development",
+                modal_desc: "We are currently developing and activating the automated payment and subscription portal to provide the best training experience. Stay tuned for the official launch soon!",
+                modal_btn: "Got it",
+                no_courses: "No technical trainings available in this category currently.",
+                no_modules: "No modules added to this course yet.",
+                back_to_dashboard: "⬅️ Back to General Dashboard",
+                coming_soon: "Stay tuned for new courses coming soon!",
+                theme_light: "Light",
+                theme_dark: "Dark",
+                pro_academy: "Professional Academy",
+                student_status: "Verified Technical Student",
+                stat_courses: "Enrolled Courses",
+                stat_progress: "Overall Progress",
+                stat_certs: "Earned Certificates",
+                settings_title: "Profile & Account Settings",
+                avatar_label: "Update Account Avatar",
+                fullname_label: "Full Name / Username",
+                email_label: "Technical Email",
+                save_changes: "Save Technical Changes",
+                cancel: "Cancel"
+            },
+            es: {
+                dashboard: "Panel de formación", settings: "Configuración de la cuenta", gis_spec: "Especialidad en SIG y mapas", logout: "Cerrar sesión",
+                welcome: "Bienvenido, {{ user.first_name|default:user.username }}", welcome_sub: "Te damos la bienvenida al entorno profesional de formación de Geo-Memory.",
+                filter_all: "Todos", filter_coding: "Programación e informática", filter_gis: "SIG y sistemas geográficos", free: "Gratis", course_price: "Precio base:",
+                go_to_subscription: "Suscripción y código promocional", sub_portal: "Portal de suscripción rápida", back: "Volver", sub_desc: "Introduce tu código promocional para obtener el descuento e inscribirte en este curso.",
+                promo_label: "Código promocional", apply: "Aplicar", price_before: "Precio antes del descuento:", final_price: "Precio final:", confirm_sub: "Confirmar suscripción e inscripción",
+                modal_title: "Servicio en desarrollo", modal_desc: "Estamos desarrollando el portal de pagos y suscripciones para ofrecer una mejor experiencia de formación. Próximamente anunciaremos su lanzamiento.", modal_btn: "Entendido",
+                no_courses: "No hay cursos técnicos disponibles en esta categoría.", no_modules: "Aún no se han añadido módulos a este curso.", back_to_dashboard: "⬅️ Volver al panel general", coming_soon: "Pronto habrá nuevos cursos.",
+                theme_light: "Claro", theme_dark: "Oscuro", pro_academy: "Academia profesional", student_status: "Estudiante técnico verificado", stat_courses: "Cursos inscritos", stat_progress: "Progreso general", stat_certs: "Certificados obtenidos",
+                settings_title: "Configuración del perfil y la cuenta", avatar_label: "Actualizar la foto de perfil", fullname_label: "Nombre completo / usuario", email_label: "Correo electrónico profesional", save_changes: "Guardar cambios", cancel: "Cancelar"
+            }
+        };
+
+        let currentLang = ['ar', 'es'].includes(document.documentElement.lang) ? document.documentElement.lang : 'en';
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+
+        function flipCard(courseId) {
+            const cardInner = document.getElementById(`card-inner-${courseId}`);
+            cardInner.classList.toggle('flipped');
+        }
+
+        function openServiceModal() {
+            const modal = document.getElementById('service-modal');
+            const box = document.getElementById('modal-content-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeServiceModal() {
+            const modal = document.getElementById('service-modal');
+            const box = document.getElementById('modal-content-box');
+            modal.classList.add('opacity-0');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            const box = document.getElementById('settings-content-box');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            const box = document.getElementById('settings-content-box');
+            modal.classList.add('opacity-0');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isRtl = document.getElementById('html-root').getAttribute('dir') === 'rtl';
+            
+            const hideClass = isRtl ? 'translate-x-full' : '-translate-x-full';
+            sidebar.classList.toggle(hideClass);
+            
+            const isHidden = sidebar.classList.contains(hideClass);
+            if (isHidden) {
+                if (isRtl) {
+                    mainContent.classList.remove('md:mr-72');
+                } else {
+                    mainContent.classList.remove('md:ml-72');
+                }
+            } else {
+                if (isRtl) {
+                    mainContent.classList.add('md:mr-72');
+                } else {
+                    mainContent.classList.add('md:ml-72');
+                }
+            }
+
+            if (window.innerWidth < 768) {
+                overlay.classList.toggle('hidden');
+            }
+        }
+
+        function applySettings() {
+            const root = document.getElementById('html-root');
+            const siteLanguage = root.lang || currentLang;
+            const isRtl = siteLanguage === 'ar';
+            root.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
+            document.getElementById('lang-btn-text').innerText = isRtl ? 'English' : 'العربية';
+            
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.remove('right-0', 'left-0', 'translate-x-full', '-translate-x-full');
+            mainContent.classList.remove('md:mr-72', 'md:ml-72');
+
+            if (isRtl) {
+                sidebar.classList.add('right-0');
+                mainContent.classList.add('md:mr-72');
+            } else {
+                sidebar.classList.add('left-0');
+                mainContent.classList.add('md:ml-72');
+            }
+
+            if (siteLanguage === 'ar' || siteLanguage === 'en' || siteLanguage === 'es') document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+
+            if (currentTheme === 'light') {
+                root.classList.remove('dark');
+                root.classList.add('html-light');
+                document.getElementById('theme-icon').innerText = '🌙';
+                document.getElementById('theme-text').innerText = translations[currentLang].theme_dark;
+            } else {
+                root.classList.add('dark');
+                root.classList.remove('html-light');
+                document.getElementById('theme-icon').innerText = '☀️';
+                document.getElementById('theme-text').innerText = translations[currentLang].theme_light;
+            }
+        }
+
+        function toggleLanguage() {
+            const selector = document.getElementById('site-language');
+            const choices = ['ar', 'fr', 'en', 'tr', 'es'];
+            const next = choices[(choices.indexOf(selector.value) + 1) % choices.length];
+            selector.value = next;
+            selector.dispatchEvent(new Event('change', {bubbles: true}));
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme);
+            applySettings();
+        }
+
+        window.addEventListener('DOMContentLoaded', applySettings);
+    </script>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+
+{% include 'site_footer.html' %}
+</body>
+</html>

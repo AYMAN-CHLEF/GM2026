@@ -1,0 +1,386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Memory | الذاكرة عبر الجغرافيا الرقمية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dzGreen: '#006633', // الأخضر الجزائري العميق
+                        dzGold: '#D4AF37',  // الذهبي الأصيل لعراقة التاريخ
+                    }
+                }
+            }
+        }
+        // اختيار الزر والقائمة
+    const dropdownBtn = document.querySelector('.dropdown button');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+
+    // تفعيل القائمة عند الضغط
+    dropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // منع إغلاق القائمة فوراً عند الضغط
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    // إغلاق القائمة عند الضغط في أي مكان آخر في الصفحة
+    window.addEventListener('click', () => {
+        if (!dropdownMenu.classList.contains('hidden')) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+    </script>
+    <style>
+        /* --- 1. الحاويات الأساسية --- */
+.geo-bg-container {
+    position: relative;
+    background-color: #09090b; /* zinc-950 */
+    overflow: hidden;
+}
+
+/* --- 2. تأثيرات الخلفية التقنية --- */
+.geo-tech-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: 
+        linear-gradient(rgba(212, 175, 55, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212, 175, 55, 0.2) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: panGrid 20s linear infinite;
+    z-index: 1;
+    opacity: 0.5;
+}
+
+.geo-glow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 102, 51, 0.3) 0%, transparent 70%);
+    z-index: 2;
+}
+
+.scanline {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.05) 50%);
+    background-size: 100% 4px;
+    z-index: 4;
+    animation: scan 6s linear infinite;
+}
+
+/* --- 3. حاوية الخرائط والأنميشن --- */
+.map-container {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    pointer-events: none;
+    width: 500px;
+}
+
+.map-stroke {
+    fill: none;
+    stroke: #D4AF37;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.8));
+}
+
+#dz-map { animation: fadeInOut 12s infinite; }
+#world-map { animation: fadeInOut 12s infinite 6s; }
+
+/* --- 4. الأنميشن (Keyframes) --- */
+@keyframes panGrid {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+}
+
+@keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    25%, 75% { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { filter: drop-shadow(0 0 10px #D4AF37); opacity: 0.4; }
+    50% { filter: drop-shadow(0 0 30px #D4AF37); opacity: 0.8; }
+}
+/* حاوية الخريطة تضمن وجود مساحة لها */
+.map-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* الخريطة تظهر بوضوح وبحجم ثابت للتجربة */
+.map-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.map-stroke {
+    fill: none;
+    stroke: #D4AF37; /* ذهبي */
+    stroke-width: 3;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw 5s linear forwards;
+}
+
+@keyframes draw {
+    to { stroke-dashoffset: 0; }
+}
+/* حاوية الخريطة */
+.map-visual-container {
+    position: absolute;
+    top: 10%;
+    right: 5%;
+    width: 450px;
+    z-index: 5;
+    opacity: 0.7;
+    pointer-events: none;
+    /* تأثير التوهج الذهبي حول الخريطة */
+    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.5));
+    animation: mapPulse 6s infinite ease-in-out;
+}
+
+/* صورة الخريطة */
+.map-image {
+    width: 100%;
+    height: auto;
+    /* جعلها تأخذ لون الوهج الذهبي */
+    filter: sepia(100%) saturate(500%) hue-rotate(20deg) brightness(1.2);
+}
+
+@keyframes mapPulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+/* إظهار القائمة عند تمرير الفأرة على الـ div الذي يحتويها */
+.dropdown:hover .dropdown-menu {
+    display: block !important;
+}
+</style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans scroll-smooth">
+{% include 'site_header.html' %}
+
+
+    
+
+<!-- في الـ section الرئيسية، قم بتغيير bg-zinc-950 إلى اللون الذي تريده -->
+<!-- مثلاً: استخدم bg-emerald-950 ليكون أخضر داكن جداً بدلاً من الأسود -->
+<section class="geo-bg-container py-32 md:py-44 overflow-hidden flex items-center justify-center min-h-[85vh] w-full relative bg-emerald-950"> 
+    
+    <div class="absolute inset-0 z-0">
+        <img src="{% static 'images/GIS.png' %}" class="w-full h-full object-cover opacity-40 mix-blend-screen filter sepia-[50%] hue-rotate-[120deg] brightness-[0.8]">
+    </div>
+    
+    <div class="absolute inset-0 z-[1] bg-emerald-950/40"></div>
+
+    <div class="geo-tech-bg pointer-events-none z-[2]"></div>
+    <div class="geo-glow pointer-events-none z-[2]"></div>
+    <div class="scanline pointer-events-none z-[3]"></div>
+
+    <div class="map-container z-[4]">
+        <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" class="map-svg">
+            <path id="dz-map" class="map-stroke" d="M300,100 L400,100 L450,200 L400,300 L300,250 Z" />
+        </svg>
+    </div>
+    
+    <div class="absolute inset-0 bg-gradient-to-tr from-emerald-950/90 to-transparent z-[5]"></div>
+
+    <div class="container mx-auto px-6 text-center relative z-[6]">
+        <span class="text-xs font-black text-dzGold uppercase tracking-widest bg-zinc-900/90 backdrop-blur-md px-4 py-2 rounded-full inline-flex items-center gap-2 border border-dzGold/40 shadow-xl">
+                 التاريخ في خريطة رقمية
+        </span>
+        
+        <h1 class="text-5xl md:text-7xl font-extrabold text-white mt-6 leading-tight max-w-4xl mx-auto tracking-tight">
+            حيث تنبض <span class="text-yellow-400 relative">الجغرافيا</span><br>
+            بأمجاد <span class="text-dzGold">التاريخ</span>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-gray-200 mt-8 max-w-2xl mx-auto font-semibold">
+            أول بيئة رقمية وهندسية متكاملة لرقمنة وتوثيق التراث والتاريخ باستخدام نظم المعلومات الجغرافية المتطورة والأطالس الذكية.
+        </p>
+
+        <div class="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4">
+            <a href="{% url 'gis:training' %}" class="px-8 py-4 bg-dzGold text-gray-950 text-lg font-black rounded-xl shadow-xl hover:bg-yellow-500 transition-all">
+                ولوج فضاء التكوين والاشتراكات
+            </a>
+            <a href="{% url 'digital_museum' %}" class="px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-bold rounded-xl hover:bg-white hover:text-dzGreen transition-all">
+                تصفح تقنية AR/VR
+            </a>
+        </div>
+    </div>
+</section>
+
+    <section id="about" class="py-24 bg-white relative z-10">
+        <div class="container mx-auto px-6 max-w-4xl text-center">
+            <h2 class="text-3xl font-extrabold text-gray-900 md:text-4xl">رؤيتنا في مؤسسة Geo-Memory</h2>
+            <div class="w-20 h-1.5 bg-dzGold mx-auto mt-4 rounded-full"></div>
+            <p class="text-xl text-gray-600 mt-8 leading-relaxed font-light">
+                نحن شركة ناشئة جزائرية طموحة وهندسية، نسعى لحماية الذاكرة من خلال إسقاط المحتوى التاريخي جغرافياً ورقمياً. نربط المعالم، المعارك، والمسارات بمواقعها الحقيقية عبر برمجيات الـ GIS الاحترافية، ونوفر بيئة تدريبية للأكاديميين لبناء قواعد بيانات جغرافية تاريخية آمنة وموثقة.
+            </p>
+        </div>
+    </section>
+
+    <!-- قسم المستودع التاريخي -->
+<section id="dynamic-content" class="py-24 bg-gradient-to-b from-white to-gray-50 relative z-10">
+    <div class="container mx-auto px-6">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <span class="text-dzGold font-bold text-sm uppercase tracking-wide">المستودع التاريخي العام</span>
+            <h2 class="text-3xl font-extrabold text-gray-900 mt-2 md:text-44xl">أحدث المحطات والخرائط المبتكرة</h2>
+            <div class="w-16 h-1 bg-dzGreen mx-auto mt-3 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for content in latest_content %}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl transition-all flex flex-col overflow-hidden">
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-950 mb-2">{{ content.title }}</h3>
+                            <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed mb-4">
+                                {{ content.main_text|truncatewords:20 }}
+                            </p>
+                        </div>
+                        <div class="border-t pt-4 flex justify-between items-center text-xs text-gray-500 font-medium">
+                            <span>📅 {{ content.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <!-- في حال عدم وجود محتوى -->
+                <div class="col-span-1 md:col-span-3 p-12 rounded-3xl border-2 border-dashed border-dzGold bg-gray-950 text-center relative overflow-hidden shadow-2xl">
+                    <div class="relative z-10">
+                        <div class="text-6xl mb-6">🎮</div>
+                        <h3 class="text-3xl font-black text-white mb-4">هل أنت مستعد لاختبار ذكائك التاريخي؟</h3>
+                        <p class="text-gray-400 max-w-lg mx-auto mb-10">
+                            المنطقة الجغرافية قيد الاستكشاف! بينما نعمل على إضافة معالم جديدة، يمكنك تجربة التحديات المتاحة.
+                        </p>
+                        <div class="flex flex-col md:flex-row justify-center gap-4">
+                            <button class="px-6 py-3 bg-dzGreen text-white font-bold rounded-xl hover:bg-opacity-80 transition-all">ابدأ تحدي "المسار المحرر"</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+    <section id="services" class="py-24 bg-gray-50 relative z-10">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl font-extrabold text-gray-900 md:text-4xl">منصاتنا وأنظمتنا الفرعية</h2>
+                <p class="text-gray-600 mt-3 font-medium">اختر البوابة الرقمية المناسبة لبدء العمل والبحث الميداني</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto text-3xl text-dzGreen font-bold shadow-inner">🗺️</div>
+                        <h3 class="text-xl font-bold text-gray-950 mt-6 text-center">الأطالس الرقمية التفاعلية</h3>
+                        <p class="text-gray-600 mt-4 text-sm leading-relaxed text-center">خرائط جغرافية تفاعلية دقيقة مبنية بإحداثيات GIS لتتبع مسارات المقاومات الشعبية الكبرى ومعارك الثورة التحريرية المظفرة.</p>
+                    </div>
+                    <a href="{% url 'atlases' %}" class="mt-6 inline-flex items-center justify-center gap-2 text-sm font-bold text-dzGreen hover:text-dzGold transition-colors group">
+                        ولوج مستودع الخرائط <svg class="w-4 h-4 transform group-hover:translate-x-[-4px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" transform="rotate(90 12 12)"></path></svg>
+                    </a>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center mx-auto text-3xl text-dzGold font-bold shadow-inner">💻</div>
+                        <h3 class="text-xl font-bold text-gray-950 mt-6 text-center">منصة التكوين الهندسي (GIS)</h3>
+                        <p class="text-gray-600 mt-4 text-sm leading-relaxed text-center">بيئة تدريبية واحترافية مستقلة مخصصة للأكاديميين والباحثين لإنشاء وتسيير قواعد البيانات الجغرافية بنظام اشتراك سنوي.</p>
+                    </div>
+                    <a href="{% url 'gis:training' %}" class="mt-6 inline-flex items-center justify-center gap-2 text-sm font-bold text-white bg-dzGreen py-2.5 rounded-xl hover:bg-opacity-90 transition-all text-center">بوابة التكوين والاشتراكات</a>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto text-3xl text-blue-600 font-bold shadow-inner">🏛️</div>
+                        <h3 class="text-xl font-bold text-gray-950 mt-6 text-center">الخدمات الرقمية والتوأمة</h3>
+                        <p class="text-gray-600 mt-4 text-sm leading-relaxed text-center">معرض رقمي مفتوح لعرض مجسمات المواقع والمعالم التاريخية الوطنية الموثقة، ويدعم السياحة الثقافية عبر الـ QR Code.</p>
+                    </div>
+                    <a href="{% url 'digital_museum' %}" class="mt-6 inline-flex items-center justify-center gap-2 text-sm font-bold text-blue-600 hover:text-dzGold transition-colors group">
+                        استكشف .... بتقنية AR/VR   <svg class="w-4 h-4 transform group-hover:translate-x-[-4px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" transform="rotate(90 12 12)"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-slate-950 py-16 text-white">
+      <div class="container mx-auto grid gap-8 px-6 md:grid-cols-2 md:items-center">
+        <div>
+          <p class="font-bold uppercase tracking-widest text-emerald-300">{% if LANGUAGE_CODE == 'fr' %}Innovation et économie locale{% elif LANGUAGE_CODE == 'en' %}Innovation and local economy{% elif LANGUAGE_CODE == 'tr' %}Yenilik ve yerel ekonomi{% elif LANGUAGE_CODE == 'es' %}Innovación y economía local{% else %}الابتكار والاقتصاد المحلي{% endif %}</p>
+          <h2 class="mt-3 text-3xl font-black">{% if LANGUAGE_CODE == 'fr' %}Du patrimoine numérique à une valeur durable{% elif LANGUAGE_CODE == 'en' %}From digital heritage to lasting value{% elif LANGUAGE_CODE == 'tr' %}Dijital mirastan sürdürülebilir değere{% elif LANGUAGE_CODE == 'es' %}Del patrimonio digital al valor sostenible{% else %}من التراث الرقمي إلى قيمة مستدامة{% endif %}</h2>
+          <p class="mt-4 leading-8 text-slate-300">{% if LANGUAGE_CODE == 'fr' %}Les cartes, la formation GIS et les expériences QR/AR/VR créent des parcours culturels et renforcent la visibilité des guides et artisans locaux.{% elif LANGUAGE_CODE == 'en' %}Maps, GIS training, and QR/AR/VR experiences create cultural routes and help local guides, artisans, and accommodation providers reach visitors.{% elif LANGUAGE_CODE == 'tr' %}Haritalar, GIS eğitimi ve QR/AR/VR deneyimleri kültürel rotalar oluşturur; yerel rehberlere ve zanaatkârlara görünürlük kazandırır.{% elif LANGUAGE_CODE == 'es' %}Los mapas, la formación en SIG y las experiencias QR/AR/VR crean rutas culturales y dan visibilidad a guías, artesanos y alojamientos locales.{% else %}تجمع الخرائط والتكوين في GIS وتجارب QR والواقعين المعزز والافتراضي لتصميم مسارات ثقافية وإبراز خدمات المرشدين والحرفيين ومقدمي الإقامة المحليين.{% endif %}</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-7"><p class="text-amber-300">01 · {% if LANGUAGE_CODE == 'fr' %}Valorisation du patrimoine{% elif LANGUAGE_CODE == 'en' %}Heritage value{% elif LANGUAGE_CODE == 'tr' %}Mirasın değerlendirilmesi{% elif LANGUAGE_CODE == 'es' %}Valorización del patrimonio{% else %}تثمين التراث{% endif %}</p><p class="mt-4 text-amber-300">02 · {% if LANGUAGE_CODE == 'fr' %}Compétences et emplois numériques{% elif LANGUAGE_CODE == 'en' %}Digital skills and jobs{% elif LANGUAGE_CODE == 'tr' %}Dijital beceri ve istihdam{% elif LANGUAGE_CODE == 'es' %}Competencias y empleo digital{% else %}مهارات ووظائف رقمية{% endif %}</p><p class="mt-4 text-amber-300">03 · {% if LANGUAGE_CODE == 'fr' %}Opportunités locales{% elif LANGUAGE_CODE == 'en' %}Local business opportunities{% elif LANGUAGE_CODE == 'tr' %}Yerel iş fırsatları{% elif LANGUAGE_CODE == 'es' %}Oportunidades locales{% else %}فرص للفاعلين المحليين{% endif %}</p><a href="{% url 'public:impact' %}" class="mt-6 inline-block rounded-xl bg-amber-400 px-5 py-3 font-extrabold text-slate-950">{% if LANGUAGE_CODE == 'fr' %}En savoir plus{% elif LANGUAGE_CODE == 'en' %}Explore the impact{% elif LANGUAGE_CODE == 'tr' %}Daha fazla bilgi{% elif LANGUAGE_CODE == 'es' %}Descubre el impacto{% else %}اكتشف تفاصيل الأثر{% endif %} →</a></div>
+      </div>
+    </section>
+
+    <section id="subscription-plans" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">خطط الاشتراك الرقمية</h2>
+                <p class="text-gray-600 mt-4">اختر الخطة التي تناسب احتياجاتك البحثية أو المؤسساتية</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition duration-300">
+                    <h3 class="text-xl font-bold text-gray-900">طالب</h3>
+                    <p class="text-dzGreen text-3xl font-black mt-4">مجاني/مدعوم</p>
+                    <ul class="mt-6 space-y-4 text-gray-600 text-sm">
+                        <li>✓ الوصول للمتحف الرقمي</li>
+                        <li>✓ تصفح الأطالس العامة</li>
+                        <li>✓ موارد تعليمية محدودة</li>
+                    </ul>
+                    <a href="{% url 'register' %}" class="mt-8 block w-full text-center py-3 border-2 border-dzGreen text-dzGreen font-bold rounded-xl hover:bg-dzGreen hover:text-white transition">التفاصيل والتسجيل</a>
+                </div>
+
+                <div class="bg-dzGreen rounded-2xl p-8 text-white shadow-xl transform scale-105">
+                    <h3 class="text-xl font-bold">أستاذ / باحث</h3>
+                    <p class="text-yellow-400 text-3xl font-black mt-4">خاص</p>
+                    <ul class="mt-6 space-y-4 text-white/90 text-sm">
+                        <li>✓ أدوات GIS المتقدمة</li>
+                        <li>✓ بناء قواعد بيانات جغرافية</li>
+                        <li>✓ دعم تقني مخصص</li>
+                    </ul>
+                    <a href="{% url 'gis:training' %}" class="mt-8 block w-full text-center py-3 bg-dzGold text-gray-900 font-bold rounded-xl hover:bg-yellow-500 transition">طلب اشتراك تكويني</a>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition duration-300">
+                    <h3 class="text-xl font-bold text-gray-900">مؤسسة</h3>
+                    <p class="text-dzGreen text-3xl font-black mt-4">مخصص</p>
+                    <ul class="mt-6 space-y-4 text-gray-600 text-sm">
+                        <li>✓ حسابات متعددة للمستخدمين</li>
+                        <li>✓ تقارير GIS تحليلية</li>
+                        <li>✓ لوحة تحكم إدارية كاملة</li>
+                    </ul>
+                    <a href="#about" class="mt-8 block w-full text-center py-3 border-2 border-dzGreen text-dzGreen font-bold rounded-xl hover:bg-dzGreen hover:text-white transition">تواصل معنا</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+{% include 'site_footer.html' %}
+</body>
+</html>

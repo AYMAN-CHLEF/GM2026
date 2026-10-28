@@ -1,0 +1,488 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Memory | التوأم الرقمي للوجهة السياحية: نحو سياحة ذكية بذاكرة جغرافية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة Three.js لعرض جولات الـ VR البانورامية الحقيقية 360 درجة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dzGreen: '#006633',
+                        dzGold: '#D4AF37',
+                    }
+                }
+            }
+        }
+    </script>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans min-h-screen flex flex-col scroll-smooth">
+{% include 'site_header.html' %}
+
+
+    <!-- رأس الصفحة مع اللوغو -->
+    
+
+    <main class="flex-1 max-w-7xl mx-auto p-6 w-full space-y-12">
+        
+        <!-- قسم الترحيب ورؤية 2026 مع الخلفية الجذابة للمتحف الرقمي -->
+        <div class="relative rounded-3xl overflow-hidden shadow-lg text-white p-10 md:p-14 bg-stone-900 border border-stone-800">
+            <!-- صورة الخلفية -->
+            <div class="absolute inset-0">
+                <img src="{% static 'images/museum-hero-bg.png' %}" alt="خلفية المتحف الرقمي لحفظ المعالم" class="w-full h-full object-cover">
+                <!-- طبقة تدرج لوني لضمان قراءة النصوص بوضوح -->
+                <div class="absolute inset-0 bg-gradient-to-r from-stone-950/95 via-stone-950/80 to-stone-950/40"></div>
+            </div>
+
+            <!-- محتوى قسم الترحيب -->
+            <div class="relative z-10 max-w-2xl space-y-4">
+                <span class="text-xs font-bold text-dzGold tracking-widest uppercase bg-stone-900/90 px-3.5 py-1.5 rounded-full border border-dzGold/40 shadow-sm">
+                    تنشيط السياحة والتوأمة الرقمية 2026
+                </span>
+                <h2 class="text-3xl md:text-4xl font-black tracking-tight text-white">
+                   Geo-Memory  من ذاكرة المكان إلى السياحة الذكية
+                </h2>
+                <p class="text-sm md:text-base text-stone-300 leading-relaxed font-medium">
+                   Geo-Memory ، منصة رقمية متكاملة للتراث والسياحة، تبني ذاكرة جغرافية للوجهة وتطوّر توأمها الرقمي من خلال دمج المعطيات المكانية والزمانية والسياقية وتوظيف الذكاء الاصطناعي، لتقديم تجارب سياحية ذكية، ورقمنة التراث وتثمينه، ودعم إدارة الوجهة وصناعة القرار.
+                </p>
+                <div class="pt-2 flex items-center gap-3">
+                    <a href="#services-section" class="px-5 py-2.5 bg-dzGreen text-white text-xs font-bold rounded-xl hover:bg-emerald-800 transition shadow">
+                        اكتشف الوجهة بذكاء
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم المتحف الافتراضي بتقنية VR (يعرض الصورة البانورامية للمتحف عند النقر) -->
+        <section class="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm">
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <span class="text-xs font-bold text-dzGreen bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">الواقع الافتراضي 360 درجة</span>
+                    <h3 class="text-2xl font-black text-stone-900">جولة داخل قاعة المتحف الرقمي الافتراضي</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">
+                        استعرض البيئة الداخلية للمتحف المستوحاة من البرومت التفاعلي. انقر على الزر أدناه لبدء جولة افتراضية حقيقية بالـ VR تمكنك من الاستدارة واستكشاف أروقة المتحف وعناصر الهولوجرام بـ 360 درجة.
+                    </p>
+                    <button onclick="openVrModal('{% static 'images/digital-museum-interior.png' %}', 'قاعة المتحف الرقمي الافتراضي (360 VR)')" class="px-5 py-2.5 bg-dzGold text-stone-900 text-xs font-bold rounded-xl hover:bg-yellow-500 transition shadow-sm inline-flex items-center gap-2">
+                        <span>🥽 ابدأ جولة الـ VR للمتحف</span>
+                    </button>
+                </div>
+                
+                <!-- معاينة بصرية للمتحف تؤدي للـ VR -->
+                <div class="relative bg-stone-900 rounded-2xl overflow-hidden shadow-xl h-[350px] border-4 border-stone-100 flex items-center justify-center group cursor-pointer" onclick="openVrModal('{% static 'images/digital-museum-interior.png' %}', 'قاعة المتحف الرقمي الافتراضي (360 VR)')">
+                    <img src="{% static 'images/digital-museum-interior.png' %}" alt="قاعة المتحف الرقمي الافتراضي" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-stone-950/40 group-hover:bg-stone-950/20 transition"></div>
+                    <span class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-dzGold text-stone-900 text-xs font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-1.5">
+                        <span> انقر لدخول جولة الـ VR</span>
+                    </span>
+                </div>
+            </div>
+        </section>
+        <!-- شبكة المعالم والبطاقات (مدعومة بالصور) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- بطاقة وهران -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-100 flex flex-col group hover:shadow-md transition">
+                <div class="h-52 bg-stone-900 relative overflow-hidden">
+                    <img src="{% static 'images/oran-landmark.png' %}" alt="معلم وهران التاريخي" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-stone-950/60 to-transparent"></div>
+                    <span class="absolute top-4 right-4 bg-dzGreen text-white text-xs font-bold px-3 py-1 rounded-full shadow">معلم مصنف</span>
+                </div>
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-dzGold"> ولاية وهران</span>
+                        <h3 class="text-lg font-bold text-stone-900 mt-2">المعالم التذكارية والتاريخية</h3>
+                        <p class="text-stone-600 text-xs mt-1 line-clamp-3">استعراض هندسي وتاريخي شامل للمعلم، يشمل تفاصيل التوأمة مع المواقع الأثرية الأخرى.</p>
+                    </div>
+                   <div class="border-t border-stone-100 pt-4 mt-4 flex justify-between items-center">
+                        <span class="text-xs text-stone-400">🌐 مجهز بـ VR/AR</span>
+                        <!-- زر جولة الـ VR لقلعة سانتا كروز -->
+                        <button onclick="openVrModal('{% static 'images/vr-background.jpg' %}', 'قلعة سانتا كروز - وهران (360 VR)')" class="px-3 py-1.5 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-800 transition">
+                            جولة VR
+                        </button>
+                        <a href="{% url 'map' %}?landmark_id=1" class="px-4 py-2 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-800 transition">
+                            معاينة
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة خدمات السياحة الرقمية (Digital Twin Dashboard) -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-100 flex flex-col group hover:shadow-lg transition">
+                <div class="h-52 bg-dzGreen relative overflow-hidden">
+                    <img src="{% static 'images/digital-twin.png' %}" alt="منصة التوأمة الرقمية" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-stone-950/60 to-transparent"></div>
+                    <span class="absolute top-4 right-4 bg-dzGold text-stone-900 text-xs font-bold px-3 py-1 rounded-full shadow">توأمة ذكية</span>
+                </div>
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-dzGold tracking-widest uppercase">Digital Twin Hub</span>
+                        <h3 class="text-lg font-bold text-stone-900 mt-2">منصة التوأمة الرقمية التفاعلية</h3>
+                        <p class="text-stone-600 text-xs mt-1 line-clamp-3">
+                            مركز التوأمة الرقمية التفاعلية
+بيئة رقمية موحّدة تربط التوائم الرقمية للمواقع والمعالم التراثية، لتقديم تمثيل تفاعلي للوجهة السياحية وإتاحة استكشافها وإدارتها بذكاء
+                        </p>
+                  </div>
+                  <div class="border-t border-stone-100 pt-4 mt-4 flex justify-between items-center">
+                      <span class="text-xs text-stone-400 font-bold">إدارة مركزية</span>
+                      <a href="{% url 'digital_twin_dashboard' %}" class="px-4 py-2 bg-dzGold text-stone-900 text-xs font-bold rounded-xl hover:bg-yellow-500 transition shadow-sm">
+                          فتح لوحة التوأمة
+                      </a>
+                  </div>
+              </div>
+          </div>
+
+            <!-- بطاقة لوحة التسيير والربط الميداني (مزودة بخلفية qr-dashboard-bg.jpg) -->
+          <div class="bg-stone-900 text-white p-6 rounded-2xl shadow-sm flex flex-col justify-between text-center border border-stone-800 relative overflow-hidden group">
+              <!-- صورة الخلفية للوحة الـ QR مع طبقة عتمة -->
+              <div class="absolute inset-0 opacity-25 group-hover:opacity-40 transition duration-500">
+                  <img src="{% static 'images/qr-dashboard-bg.png' %}" alt="خلفية لوحة الـ QR" class="w-full h-full object-cover">
+              </div>
+              
+              <div class="relative z-10">
+                  <h3 class="font-bold text-dzGold text-sm"> تسيير رموز الـ QR للبطاقات التقنية</h3>
+                  <p class="text-stone-300 text-xs mt-2 px-2">مخصصة لإنشاء وربط رموز استجابة سريعة ميدانية تعرض البطاقة التقنية للموقع الأثري بلغات متعددة حسب لغة السائح.</p>
+                  <div class="my-6 w-24 h-24 bg-white/90 backdrop-blur mx-auto rounded-xl flex items-center justify-center text-stone-900 font-black text-3xl shadow-inner">QR</div>
+              </div>
+              <button onclick="openAdminModal()" class="relative z-10 w-full py-2.5 bg-dzGreen hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition shadow">
+                  لوحة تسيير وتوليد رموز المعالم
+              </button>
+        </div>
+      </div>
+
+        <!-- قسم التوأمة الرقمية بين السياحة والتراث -->
+        <section id="services-section" class="bg-emerald-50/50 border border-emerald-100 p-8 rounded-3xl">
+            <div class="max-w-3xl mx-auto text-center space-y-4">
+                <span class="text-xs font-bold text-dzGreen bg-white px-3 py-1 rounded-full border border-emerald-200 shadow-sm">ربط وتكامل وطني</span>
+                <h3 class="text-2xl font-black text-stone-900">مشروع التوأمة الرقمية بين المعالم السياحية</h3>
+                <p class="text-stone-600 text-sm leading-relaxed">
+                    يتيح هذا النظام ربط شبكة المتاحف والمعالم الأثرية بين مختلف الولايات، مما يوفر للمؤسسات السياحية رؤية موحدة للزوار والباحثين مدعومة ببيانات تفاعلية دقيقة.
+                </p>
+                <div class="pt-2 flex justify-center gap-3 flex-wrap">
+                    <a href="{% url 'digital_twin_dashboard' %}" class="inline-flex items-center gap-2 bg-dzGold text-stone-900 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-yellow-500 transition shadow-sm">
+                        <span>لوحة التحكم الرقمي (Digital Twin)</span>
+                    </a>
+                    <a href="https://wa.me/213777569544" target="_blank" class="inline-flex items-center gap-2 bg-dzGreen text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-emerald-800 transition shadow-sm">
+                        <span>انضم إلى شبكة التوأمة السياحية</span>
+                    </a>
+                </div>
+            </div>
+    </section>
+
+        <!-- قسم تجربة الذاكرة عبر الأجيال والواقع المعزز -->
+        <section class="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-black text-stone-900">تجربة الذاكرة عبر الأجيال</h3>
+                    <p class="text-stone-600 leading-relaxed">
+                        مع نظارات <span class="font-bold text-dzGreen">Geo-Memory</span> للواقع المعزز، قمنا بدمج التكنولوجيا مع التاريخ. الآن، يمكن لمختلف الأجيال أن يقفوا في نفس المكان، لكن كل منهم يرى طبقة مختلفة من التاريخ تتفاعل أمام أعينهم في وقت واحد.
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="text-xs bg-dzGold/10 text-dzGold font-bold px-3 py-1 rounded-full">الماضي</span>
+                        <span class="text-xs bg-dzGold/10 text-dzGold font-bold px-3 py-1 rounded-full">الحاضر</span>
+                        <span class="text-xs bg-dzGold/10 text-dzGold font-bold px-3 py-1 rounded-full">المستقبل</span>
+                    </div>
+                </div>
+                <div class="relative rounded-2xl overflow-hidden shadow-xl border-4 border-white">
+                    <img src="{% static 'images/geo-memory-generations.jpg' %}" alt="أجيال Geo-Memory" class="w-full h-auto object-cover">
+                    <div class="absolute bottom-4 left-4 bg-stone-900/90 text-white px-6 py-3 rounded-xl backdrop-blur-sm">
+                        <p class="text-sm font-bold">Geo-Memory AR</p>
+                        <p class="text-[10px] text-dzGold">نظارات الواقع المعزز للتراث</p>
+                    </div>
+                </div>
+            </div>
+    </section>
+<div class="ar-container" style="text-align: center; margin: 20px 0; background: #ffffff; padding: 20px; border-radius: 16px; border: 1px solid #e7e5e4;">
+    <h3 style="font-weight: 900; color: #1c1917; margin-bottom: 8px;">استكشف قصر بشار العتيق بالواقع المعزز (AR)</h3>
+    <p style="font-size: 14px; color: #57534e; margin-bottom: 16px;">قم بتوجيه كاميرا هاتفك نحو سطح مستوٍ لتجربة المجسم ثلاثي الأبعاد في بيئتك الحقيقية.</p>
+
+    <div class="flex min-h-[320px] items-center justify-center rounded-xl border border-dashed border-emerald-300 bg-gradient-to-br from-emerald-50 to-amber-50 p-8 text-center">
+        <div class="max-w-lg">
+            <span class="text-5xl" aria-hidden="true">🏛️</span>
+            <h4 class="mt-4 text-lg font-black text-emerald-900">سيظهر المجسم ثلاثي الأبعاد هنا</h4>
+            <p class="mt-2 text-sm leading-7 text-stone-600">أضف ملف المجسم من لوحة إدارة الأصول لتفعيل المعاينة والواقع المعزز.</p>
+        </div>
+    </div>
+</div>
+    </main>
+
+    <!-- تذييل الصفحة -->
+    
+
+
+
+    <!-- النافذة المنبثقة (Modal) للوحة تسيير وربط الـ QR الميداني -->
+<div id="adminModal" class="hidden fixed inset-0 bg-gray-950/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 max-w-md w-full text-center shadow-2xl animate-in fade-in zoom-in duration-300 text-right">
+        
+        <!-- رأس اللوحة -->
+        <div class="flex items-center justify-between mb-3 border-b border-gray-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🏷️</span>
+                <h3 class="text-base font-black text-white">لوحة تسيير رموز الاستجابة (QR)</h3>
+            </div>
+            <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white text-sm font-bold">✕</button>
+        </div>
+
+        <p class="text-gray-400 text-xs mb-4 leading-relaxed">
+            تتيح لك هذه اللوحة ربط الرمز الميداني لكل معلم أثري مضاف في تطبيق (Monuments)؛ حيث يتم عرض كود الـ QR الخاص به فوراً.
+        </p>
+        
+        <!-- نموذج تفاعلي -->
+        <div class="bg-gray-950 p-4 rounded-2xl border border-gray-800 mb-4 space-y-3">
+            <div>
+                <label class="block text-[11px] font-bold text-dzGold mb-1">اختر المعلم الأثري المضاف:</label>
+                <select id="monumentSelect" onchange="handleMonumentSelection(this)" class="w-full text-xs p-2.5 border border-gray-700 rounded-xl bg-gray-900 text-white focus:outline-none focus:border-dzGold">
+                    
+                    <!-- قصر واكدة (كمعلم افتراضي مجاني - سنعرض له صورة QR افتراضية أو مسار مؤقت) -->
+                    <option value="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://geo-memory.onrender.com/ksar-wakda-bechar/" data-is-free="true">
+                        🏛️ قصر واكدة (بشار) - مفعل مجاناً
+                    </option>
+                    
+
+                    <!-- معالم قاعدة البيانات القادمة من Django -->
+                    {% for monument in monuments %}
+                        <option value="{% if monument.qr_code %}{{ monument.qr_code.url }}{% else %}https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ request.get_host }}{% url 'monument_detail' monument.slug %}{% endif %}" data-is-free="{% if forloop.counter <= 2 %}true{% else %}false{% endif %}">
+                            🏛️ {{ monument.name_ar }} {% if forloop.counter <= 2 %}(مجاني){% else %}(باقة مدفوعة){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- حاوية عرض صورة كود الـ QR -->
+            <div id="qrSection" class="flex flex-col items-center justify-center pt-2">
+                <div class="bg-white p-3 rounded-2xl shadow-inner border border-gray-700 flex items-center justify-center min-h-[140px] min-w-[140px]">
+                    <img id="qrImageDisplay" src="" alt="QR Code" class="w-32 h-32 object-contain">
+                </div>
+                <span id="qrUrlText" class="text-[10px] text-gray-500 font-mono mt-2 truncate max-w-full">رمز جاهز للطباعة والمسح الميداني</span>
+            </div>
+
+            <!-- رسالة الخدمة المدفوعة -->
+            <div id="paidServiceNotice" class="hidden bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-center space-y-2">
+                <p class="text-xs font-bold text-amber-400">⚠️ هذه الخدمة متوفرة ضمن الباقة المدفوعة</p>
+                <p class="text-[10px] text-gray-300">توليد وطباعة رموز الـ QR اللامحدودة لكافة المعالم يتطلب ترقية الحساب.</p>
+                <a href="https://wa.me/213777569544?text=السلام عليكم، أريد ترقية حسابي لتفعيل رموز QR لكافة المعالم" target="_blank" class="inline-block bg-dzGold hover:bg-yellow-500 text-gray-950 text-[11px] font-black px-3 py-1.5 rounded-lg transition shadow">
+                    💎 ترقية الحساب الآن
+                </a>
+            </div>
+
+            <!-- اللغات المدعومة -->
+            <div>
+                <label class="block text-[11px] font-bold text-gray-400 mb-1">اللغات المدعومة للبطاقة:</label>
+                <div class="flex gap-2 text-[10px] font-bold justify-center">
+                    <span class="bg-dzGreen text-white px-2.5 py-1 rounded-lg">العربية</span>
+                    <span class="bg-gray-800 text-gray-300 px-2.5 py-1 rounded-lg">Français</span>
+                    <span class="bg-gray-800 text-gray-300 px-2.5 py-1 rounded-lg">English</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- أزرار الإجراءات والتحميل المباشر -->
+        <div id="actionButtons" class="space-y-2 mb-4">
+            <a id="downloadBtn" href="#" download="Geo-Memory-QR.png" target="_blank" class="w-full py-2.5 px-4 bg-dzGold hover:bg-yellow-500 text-gray-950 font-black text-xs rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-dzGold/10">
+                📥 تحميل كود الـ QR (صورة PNG)
+            </a>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-gray-800">
+            <a href="https://wa.me/213777569544" target="_blank" class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 hover:underline">
+                <span>💬 تفعيل ميداني</span>
+            </a>
+            <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white text-xs font-bold underline">إغلاق اللوحة</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleMonumentSelection(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const qrUrl = selectedOption.value;
+        const isFree = selectedOption.getAttribute('data-is-free') === 'true';
+
+        const qrSection = document.getElementById('qrSection');
+        const paidNotice = document.getElementById('paidServiceNotice');
+        const actionButtons = document.getElementById('actionButtons');
+        const qrImageDisplay = document.getElementById('qrImageDisplay');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        if (isFree) {
+            qrSection.classList.remove('hidden');
+            actionButtons.classList.remove('hidden');
+            paidNotice.classList.add('hidden');
+            
+            // ربط مصدر الصورة ورابط التحميل بالرابط المباشر
+            qrImageDisplay.src = qrUrl;
+            downloadBtn.href = qrUrl;
+        } else {
+            qrSection.classList.add('hidden');
+            actionButtons.classList.add('hidden');
+            paidNotice.classList.remove('hidden');
+        }
+    }
+
+    // تفعيل الاختيار الأول تلقائياً بمجرد فتح الصفحة
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectBox = document.getElementById('monumentSelect');
+        if (selectBox && selectBox.options.length > 0) {
+            handleMonumentSelection(selectBox);
+        }
+    });
+</script>
+
+
+    <!-- نافذة المساعد الذكي AI التفاعلي -->
+    <div id="aiChatModal" class="hidden fixed bottom-6 left-6 z-[120] w-80 bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col">
+        <div class="bg-dzGreen text-white p-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🤖</span>
+                <span class="text-xs font-bold">المرشد السياحي الذكي (Geo-AI)</span>
+            </div>
+            <button onclick="toggleAiChat()" class="text-white hover:text-dzGold font-bold text-sm">✕</button>
+        </div>
+        <div id="chatMessages" class="p-4 h-64 overflow-y-auto space-y-3 bg-stone-50 text-xs">
+            <div class="bg-white p-3 rounded-2xl shadow-sm border border-stone-200 max-w-[85%]">
+                مرحباً بك! أنا مساعدك الذكي المدعوم ببيانات Geo-Memory. اسألني عن أي معلم تاريخي لتزويدك برواياته الجغرافية.
+            </div>
+        </div>
+        <div class="p-3 bg-white border-t border-stone-200 flex gap-2">
+            <input type="text" id="chatInput" placeholder="اكتب سؤالك..." class="flex-1 text-xs px-3 py-2 border border-stone-300 rounded-xl focus:outline-none">
+            <button onclick="sendAiMessage()" class="bg-dzGreen text-white px-4 py-2 rounded-xl text-xs font-bold">إرسال</button>
+        </div>
+    </div>
+
+    <!-- نافذة جولة الواقع الافتراضي VR الديناميكية (تعمل مع أي صورة بانورامية مرسلة) -->
+    <div id="vrModal" class="hidden fixed inset-0 bg-stone-950/90 z-[110] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-stone-900 text-white rounded-3xl p-6 max-w-4xl w-full text-center shadow-2xl border border-stone-800 relative">
+            <div class="flex justify-between items-center mb-2">
+                <h3 id="vrTitle" class="text-lg font-bold text-dzGold">الجولة الافتراضية البانورامية (VR 360)</h3>
+                <button onclick="closeVrModal()" class="text-stone-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <p class="text-stone-400 text-xs mb-3">انقر واسحب بالماوس أو الإصبع لاستكشاف المكان في جميع الاتجاهات (360 درجة).</p>
+            
+            <div id="vrContainer" class="w-full h-[450px] bg-stone-950 rounded-2xl overflow-hidden border border-stone-800 relative cursor-grab active:cursor-grabbing"></div>
+            
+            <div class="mt-4 flex justify-between items-center text-xs text-stone-400">
+                <span>🥽 عارض الواقع الافتراضي 360°</span>
+                <button onclick="closeVrModal()" class="px-5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-xl font-bold transition">إغلاق الجولة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- السكربتات المحدثة لتعريف عارض الـ VR الديناميكي -->
+    <script>
+        function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+        function toggleAiChat() { document.getElementById('aiChatModal').classList.toggle('hidden'); }
+        
+        function sendAiMessage() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            if(!input.value.trim()) return;
+            messages.innerHTML += `<div class="bg-dzGreen text-white p-3 rounded-2xl shadow-sm ml-auto max-w-[85%]">${input.value}</div>`;
+            input.value = '';
+            setTimeout(() => {
+                messages.innerHTML += `<div class="bg-white p-3 rounded-2xl shadow-sm border border-stone-200 max-w-[85%]">بناءً على التوأم الرقمي، تم توثيق هذا المعلم ببيانات دقيقة.</div>`;
+                messages.scrollTop = messages.scrollHeight;
+            }, 800);
+        }
+
+        // متغيرات عارض الواقع الافتراضي الـ VR 360
+        let vrScene, vrCamera, vrRenderer, vrMesh, isUserInteracting = false, onPointerDownMouseX = 0, onPointerDownMouseY = 0, lon = 0, onPointerDownLon = 0, lat = 0, onPointerDownLat = 0, phi = 0, theta = 0;
+
+        function openVrModal(imagePath, titleText) { 
+            document.getElementById('vrModal').classList.remove('hidden');
+            document.getElementById('vrTitle').innerText = titleText;
+            initVrViewer(imagePath);
+        }
+
+        function closeVrModal() { 
+            document.getElementById('vrModal').classList.add('hidden'); 
+            const container = document.getElementById('vrContainer');
+            container.innerHTML = ''; // تنظيف الكانفاس عند الإغلاق
+            vrScene = null;
+        }
+
+        function initVrViewer(imagePath) {
+            const container = document.getElementById('vrContainer');
+            container.innerHTML = '';
+            
+            vrScene = new THREE.Scene();
+            vrCamera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 1100);
+
+            vrRenderer = new THREE.WebGLRenderer();
+            vrRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(vrRenderer.domElement);
+
+            const geometry = new THREE.SphereGeometry(500, 60, 40);
+            geometry.scale(-1, 1, 1);
+
+            // تحميل الصورة البانورامية (سواء المتحف أو المعلم) ديناميكياً
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load(imagePath, function(texture) {
+                const material = new THREE.MeshBasicMaterial({ map: texture });
+                vrMesh = new THREE.Mesh(geometry, material);
+                vrScene.add(vrMesh);
+            });
+
+            container.addEventListener('pointerdown', onPointerDown);
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+            window.addEventListener('resize', onWindowResize);
+            
+            animateVr();
+        }
+
+        function onPointerDown(event) {
+            isUserInteracting = true;
+            onPointerDownMouseX = event.clientX;
+            onPointerDownMouseY = event.clientY;
+            onPointerDownLon = lon;
+            onPointerDownLat = lat;
+        }
+
+        function onPointerMove(event) {
+            if (isUserInteracting === true) {
+                lon = (onPointerDownMouseX - event.clientX) * 0.1 + onPointerDownLon;
+                lat = (event.clientY - onPointerDownMouseY) * 0.1 + onPointerDownLat;
+            }
+        }
+
+        function onPointerUp() { isUserInteracting = false; }
+
+        function onWindowResize() {
+            const container = document.getElementById('vrContainer');
+            if(container && vrCamera && vrRenderer) {
+                vrCamera.aspect = container.clientWidth / container.clientHeight;
+                vrCamera.updateProjectionMatrix();
+                vrRenderer.setSize(container.clientWidth, container.clientHeight);
+            }
+        }
+
+        function animateVr() {
+            if(!vrScene) return;
+            requestAnimationFrame(animateVr);
+            lat = Math.max(-85, Math.min(85, lat));
+            phi = THREE.MathUtils.degToRad(90 - lat);
+            theta = THREE.MathUtils.degToRad(lon);
+
+            const target = new THREE.Vector3();
+            target.x = 500 * Math.sin(phi) * Math.cos(theta);
+            target.y = 500 * Math.cos(phi);
+            target.z = 500 * Math.sin(phi) * Math.sin(theta);
+
+            vrCamera.lookAt(target);
+            vrRenderer.render(vrScene, vrCamera);
+        }
+    </script>
+
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+{% include 'site_footer.html' %}
+</body>
+</html>

@@ -1,0 +1,89 @@
+:root {
+    --primary: #1b5e20;
+    --accent: #FFD700;
+    --dark: #000;
+    --white: #ffffff;
+}
+
+/* --- الهيكلية الأساسية --- */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Cairo', sans-serif;
+}
+
+/* --- الشريط العلوي (Top Navigation) --- */
+.top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 0 20px;
+    position: relative;
+    background-color: var(--primary);
+    border-bottom: 3px solid var(--accent);
+    z-index: 999;
+    color: var(--white);
+}
+
+.nav-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    pointer-events: none; /* يمنع التداخل مع ضغط الأزرار */
+}
+
+.nav-controls {
+    display: flex;
+    gap: 10px;
+    margin-right: auto; /* دفع الأزرار لليمين في RTL */
+    z-index: 1000;
+}
+
+/* --- الأزرار التفاعلية --- */
+.btn-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--primary);
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-control:hover {
+    background: var(--accent);
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+/* --- إعدادات الخريطة --- */
+#map {
+    width: 100%;
+    height: 100vh;
+}
+
+.maplibregl-control-container {
+    z-index: 50;
+}
+
+/* --- التصميم المتجاوب (Responsive) --- */
+@media (max-width: 600px) {
+    .top-nav { height: 50px; padding: 0 10px; }
+    .nav-title { font-size: 0.9rem; }
+    .btn-control { width: 35px; height: 35px; }
+}
+
+@media (max-width: 480px) {
+    .nav-title span { display: none; } /* إخفاء النص في الشاشات الصغيرة جداً */
+}
+/* إخفاء زر الإغلاق أينما وجد */

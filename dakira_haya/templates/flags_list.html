@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen py-16 px-6">
+    <div class="max-w-7xl mx-auto">
+        
+        <div class="text-center mb-16">
+            <span class="text-emerald-600 font-black tracking-widest uppercase text-sm">مكتبة الذاكرة الوطنية</span>
+            <h1 class="text-5xl md:text-6xl font-black text-slate-900 mt-4 mb-6">أعلام غيّروا التاريخ</h1>
+            <div class="w-24 h-2 bg-amber-500 mx-auto rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {% for flag in flags %}
+            <div class="group relative bg-white rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-500 border border-slate-100 overflow-hidden">
+                
+                <div class="relative h-72 overflow-hidden bg-slate-200">
+                    <!-- تم تعديل مسار الصورة ليعتمد على حقل الـ ImageField في قاعدة البيانات -->
+                    {% if flag.image %}
+                    <img src="{{ flag.image.url }}" alt="{{ flag.full_name }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-900 via-emerald-700 to-amber-500 text-white" aria-label="{{ flag.full_name }}">
+                        <img src="{% static 'images/Geo-Memory.jpeg' %}" alt="" class="w-20 h-20 rounded-2xl border-2 border-white/70 shadow-xl object-cover">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    
+                    <div class="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-xs font-bold transition-opacity group-hover:opacity-100">
+                        {{ flag.birth_date|date:"Y" }}
+                    </div>
+                    
+                    <h3 class="absolute bottom-6 right-6 text-white text-2xl font-black leading-tight">{{ flag.full_name }}</h3>
+                </div>
+
+                <div class="p-8">
+                    <p class="text-slate-500 text-sm leading-relaxed mb-8 h-20 overflow-hidden line-clamp-3">
+                        {{ flag.biography|truncatewords:25 }}
+                    </p>
+                    
+                    <a href="{% url 'dakira_haya:map_page' %}?figure={{ flag.slug }}" 
+                       class="flex items-center justify-center gap-3 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-emerald-800 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
+                        <span>ابدأ التجربة التفاعلية</span>
+                        <svg class="w-5 h-5 transition-transform group-hover:-translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
+                <div class="text-6xl mb-4">📜</div>
+                <h3 class="text-2xl font-black text-slate-700 mb-2">المكتبة في طور الإعداد</h3>
+                <p class="text-slate-400">لا توجد أعلام مسجلة حالياً في قاعدة البيانات.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

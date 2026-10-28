@@ -1,0 +1,6 @@
+{% extends "admin/change_list.html" %}
+{% block object-tools %}
+    <a href="generate/" class="button">توليد بطاقات جديدة</a>
+    <a href="{% url 'print_keys' %}" class="button" target="_blank">طباعة البطاقات</a>
+    {{ block.super }}
+{% endblock %}

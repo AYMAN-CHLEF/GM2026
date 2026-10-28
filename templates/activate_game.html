@@ -1,0 +1,35 @@
+{% load static %}<!DOCTYPE html><html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Geo-Memory | تفعيل رحلة المستكشف</title><link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head><body style="margin:0;background:#081c15;color:#d7ccc8" class="gm-centered-page">
+{% include 'site_header.html' %}
+<div class="activation-page" style="background: #081c15; min-height: calc(100vh - 66px); display: flex; align-items: center; justify-content: center; font-family: 'Georgia', serif; color: #d7ccc8;">
+    
+    <div class="activation-card" style="background: #1b4332; padding: 40px; border-radius: 20px; border: 2px solid #d4af37; box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); text-align: center; max-width: 400px; width: 90%;">
+        
+        <h2 style="color: #d4af37; margin-bottom: 20px;"> تفعيل رحلة المستكشف</h2>
+        <p style="margin-bottom: 30px; line-height: 1.6;">أدخل الرمز المخطوط الموجود على بطاقتك لفك أسرار الخريطة.</p>
+        
+        {% if messages %}
+            <div style="margin-bottom: 20px;">
+                {% for message in messages %}
+                    <div style="padding: 10px; border-radius: 8px; margin-bottom: 10px; {% if message.tags == 'error' %}background: #780000; color: #ffcccc;{% else %}background: #2d6a4f; color: #d4af37;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="serial_code" placeholder="أدخل الرمز التسلسلي..." required 
+                   style="padding: 15px; width: 100%; box-sizing: border-box; background: #081c15; border: 2px solid #d4af37; color: #d4af37; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 1.1em;">
+            
+            <button type="submit" style="padding: 15px 40px; background: #d4af37; color: #081c15; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; width: 100%; transition: 0.3s;">
+                ابدأ الاستكشاف
+            </button>
+        </form>
+    </div>
+</div>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+{% include 'site_footer.html' %}
+</body></html>

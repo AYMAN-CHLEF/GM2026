@@ -1,0 +1,26 @@
+{% load static %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Geo-Memory{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+  <style>
+    .auth-page{flex:1;display:grid;place-items:center;padding:2.5rem 1rem;background:#f6f8f6}
+    .auth-card{width:min(100%,34rem);padding:clamp(1.25rem,4vw,2.25rem);border:1px solid #e4e9e5;border-radius:1.25rem;background:#fff;box-shadow:0 14px 40px #17352212}
+    .auth-card input:not([type=hidden]){width:100%;min-height:2.8rem;padding:.7rem .9rem;border:1px solid #d7e0da;border-radius:.7rem}
+    .auth-card button[type=submit]{min-height:2.8rem;padding:.7rem 1rem;border:0;border-radius:.7rem;background:#006633;color:white;font-weight:800;cursor:pointer}
+    .auth-card a{color:#006633;font-weight:700}.auth-card li,.auth-card p{line-height:1.75}
+    .auth-card h1{margin:0;color:#006633;font-size:1.5rem;font-weight:900;line-height:1.35}.auth-card p{margin-block:.8rem;color:#52615a}
+    .auth-messages{width:min(100%,34rem);margin:0 auto;padding:1rem 1rem 0}
+    .auth-message{padding:.8rem 1rem;margin:.35rem 0;border-radius:.7rem;background:#eef6ef;color:#174a31}
+    .auth-error{color:#a32323}.auth-form{display:grid;gap:1rem}.auth-form label{font-weight:700}
+  </style>
+</head>
+<body>
+  {% include 'site_header.html' %}
+  {% if messages %}<div class="auth-messages" role="status">{% for message in messages %}<p class="auth-message">{{ message }}</p>{% endfor %}</div>{% endif %}
+  <main class="auth-page"><section class="auth-card">{% block content %}{% endblock %}</section></main>
+  {% include 'site_footer.html' %}
+  <script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+</body>
+</html>

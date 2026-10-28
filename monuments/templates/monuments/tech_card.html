@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{% if current_lang == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }} | Geo-Memory</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dzGreen: '#006633', // الأخضر الجزائري العميق
+                        dzGold: '#D4AF37',  // الذهبي الأصيل لعراقة التاريخ
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* خلفية المنصة الأم المتدرجة والخاصة بـ Geo-Memory */
+        .geo-platform-bg {
+            background-color: #030712;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 102, 51, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
+                linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .lang-btn.active {
+            background-color: #D4AF37;
+            color: #030712;
+            font-weight: bold;
+        }
+    </style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="geo-platform-bg text-gray-100 font-sans antialiased min-h-screen pb-12 relative selection:bg-dzGold selection:text-gray-950">
+{% include 'site_header.html' %}
+
+    <!-- شريط علوي ذكي يطابق هوية Geo-Memory الأم -->
+    
+
+    <main class="max-w-md mx-auto px-4 mt-6 space-y-6">
+        
+        <!-- مشغل فيديو الدرون -->
+        {% if monument.drone_video_path %}
+        <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl border-2 border-dzGold/40 bg-black group">
+            <video controls autoplay muted playsinline class="w-full h-full object-cover">
+                <source src="{% static monument.drone_video_path %}" type="video/mp4">
+                Your browser does not support video playback.
+            </video>
+            <div class="absolute bottom-3 {% if current_lang == 'ar' %}right-3{% else %}left-3{% endif %} bg-gray-950/80 backdrop-blur-md text-dzGold text-[11px] font-bold px-3 py-1 rounded-full border border-dzGold/40 flex items-center gap-1.5 shadow-lg">
+                <span class="w-2 h-2 rounded-full bg-dzGold animate-ping"></span>
+                {{ ui_texts.view_drone }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- بطاقة المعلومات الرئيسية -->
+        <div class="bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-4 relative overflow-hidden">
+            <!-- لمسة إضاءة خفيفة تعكس طابع المنصة -->
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-dzGreen/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- الموقع الجغرافي وخريطة جوجل -->
+            <div>
+                <span class="text-xs uppercase tracking-wider text-dzGold font-bold block mb-1"> {{ monument.location_name }}</span>
+                <h1 class="text-2xl font-black text-white tracking-tight">{{ name }}</h1>
+            </div>
+
+            {% if monument.google_maps_url %}
+            <a href="{{ monument.google_maps_url }}" target="_blank" class="w-full py-3 px-4 bg-dzGold hover:bg-yellow-500 text-gray-950 font-black text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-dzGold/20">
+                 {{ ui_texts.navigate }}
+            </a>
+            {% endif %}
+
+            <hr class="border-gray-800">
+
+            <!-- النبذة التاريخية والمعمارية -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-black text-dzGold uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-1.5 h-3 bg-dzGreen rounded-full"></span>
+                    {{ ui_texts.overview }}
+                </h3>
+                <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line text-justify bg-gray-950/80 p-4 rounded-2xl border border-gray-800 shadow-inner">
+                    {{ description }}
+                </p>
+            </div>
+        </div>
+
+        <!-- تذييل الصفحة -->
+        <div class="text-center text-gray-500 text-xs py-4 space-y-1">
+            <p class="font-semibold text-gray-400">Geo-Memory Tourist Experience</p>
+            <p class="font-mono text-[10px] text-gray-600">ID: {{ monument.slug }}</p>
+        </div>
+
+    </main>
+
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+{% include 'site_footer.html' %}
+</body>
+</html>

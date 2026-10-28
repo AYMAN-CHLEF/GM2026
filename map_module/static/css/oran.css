@@ -1,0 +1,172 @@
+/* ==========================================================================
+   1. الإعدادات العامة والخريطة
+   ========================================================================== */
+/* إزالة أي هوامش تلقائية من المتصفح */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* لمنع ظهور أشرطة التمرير إذا كان الإطار كبيراً */
+}
+
+/* الحاوية التي ستأخذ كامل الشاشة */
+.full-screen-map {
+    position: relative;
+    width: 100vw;   /* كامل عرض الشاشة */
+    height: 100vh;  /* كامل طول الشاشة */
+    border: 10px solid #1b5e20; /* الإطار على الحواف */
+    box-sizing: border-box; /* لضمان أن الإطار لا يخرج عن حدود الشاشة */
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes fadeInMap {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ==========================================================================
+   2. تخصيص عناصر Leaflet
+   ========================================================================== */
+.leaflet-control-zoom,
+.leaflet-control-search,
+.leaflet-control-layers {
+    border: 2px solid #d4af37 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    background-color: #1b5e20 !important;
+    color: #d4af37 !important;
+}
+
+.leaflet-control-scale-line {
+    border: 2px solid #1b5e20 !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    color: #1b5e20 !important;
+    font-weight: bold !important;
+}
+
+/* ==========================================================================
+   3. تصميم الـ Popup (المحراب)
+   ========================================================================== */
+.leaflet-popup-content-wrapper {
+    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+                url('/static/images/zelij.png') !important;
+    background-size: 100px !important;
+    border: 2px solid #d4af37 !important;
+    border-radius: 15px !important;
+    padding: 5px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.leaflet-popup-content { margin: 0 !important; width: 250px !important; }
+.leaflet-popup-tip { background: #1b5e20 !important; }
+
+/* --- محتوى الـ Popup المخصص --- */
+.custom-popup { text-align: center; width: 250px; direction: rtl; color: #1a1a1a; }
+.popup-name {
+    background: #1b5e20;
+    color: #d4af37;
+    padding: 8px;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+.popup-main-img {
+    display: block !important;
+    width: 250px !important;    /* حدد عرضاً ثابتاً */
+    height: 160px !important;   /* حدد ارتفاعاً ثابتاً */
+    object-fit: cover !important;
+    border-radius: 10px !important;
+    margin: 5px auto !important;
+    visibility: visible !important;
+}
+.popup-address {
+    background: #f8f9fa;
+    padding: 8px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #1b5e20;
+    border: 1px solid #ddd;
+}
+
+/* ==========================================================================
+   4. الأزرار، QR، والبوصلة
+   ========================================================================== */
+.btn-group { display: flex; gap: 5px; margin-top: 10px; }
+.btn-action {
+    flex: 1;
+    padding: 8px;
+    border-radius: 20px;
+    color: white !important;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+}
+.btn-google { background: #1b5e20; }
+.btn-whatsapp { background: #25D366; }
+
+.qr-container { background: white; padding: 5px; border-radius: 10px; display: inline-block; border: 1px solid #eee; }
+.qr-container img { width: 80px; height: 80px; display: block; }
+
+.compass-rose-container { margin-right: 60px !important; margin-bottom: 30px !important; z-index: 1000; }
+.rose {
+    width: 70px; height: 70px;
+    border: 2px solid #1b5e20;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.rose::before, .rose::after { content: ''; position: absolute; background: #d4af37; }
+.rose::before { width: 2px; height: 80%; }
+.rose::after { width: 80%; height: 2px; }
+
+/* ==========================================================================
+   5. لوحة المصادر والسكريول بار
+   ========================================================================== */
+#map-sources-overlay {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 200000; visibility: hidden; opacity: 0; transition: 0.5s;
+}
+.active-overlay { visibility: visible !important; opacity: 1 !important; }
+
+.mini-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    border-bottom: 5px solid #1b5e20;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 280px;
+}
+
+#reopen-icon {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 40px; height: 40px;
+    background: #1b5e20; color: white;
+    border-radius: 50%; display: flex;
+    justify-content: center; align-items: center;
+    cursor: pointer; z-index: 150000;
+    border: 2px solid #d4af37; visibility: hidden;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #1b5e20; border-radius: 10px; }
+/* أضف هذه إذا لم تكن موجودة */
+.popup-name { background: #1b5e20; color: #d4af37; padding: 8px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; text-align: center; }
+.qr-container { background: white; padding: 5px; border-radius: 10px; display: inline-block; border: 1px solid #eee; }
+.qr-container img { width: 60px; height: 60px; display: block; }

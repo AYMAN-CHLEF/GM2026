@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تم استلام طلبك</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6 gm-centered-page">
+{% include 'site_header.html' %}
+
+    <div class="max-w-md w-full bg-white p-8 rounded-3xl shadow-lg text-center border">
+        <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+            ✓
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">تم استلام طلبك بنجاح!</h1>
+        <p class="text-gray-600 mb-8">{{ msg }}</p>
+        <a href="{% url 'dashboard_router' %}" class="block w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition">
+            العودة للوحة التحكم
+        </a>
+    </div>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+
+{% include 'site_footer.html' %}
+</body>
+</html>

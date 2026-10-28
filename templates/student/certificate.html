@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}" id="html-root" class="font-tajawal">
+<head>
+
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;700;900&family=Poppins:wght@400;600;700;800&family=Noto+Sans+Tifinagh&family=Great+Vibes&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شهادة إتمام المسار | Geo-Memory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة html2canvas لالتقاط وتحميل الشهادة كصورة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dzGreen: '#006633',
+                        dzGold: '#D4AF37',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .font-amiri { font-family: 'Amiri', serif; }
+        .font-tajawal { font-family: 'Tajawal', sans-serif; }
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-tifinagh { font-family: 'Noto Sans Tifinagh', sans-serif; }
+        /* خط الإمضاء الفني الحقيقي بالإنجليزية */
+        .font-signature-en { font-family: 'Great Vibes', cursive; }
+        /* خط الإمضاء الفني الحقيقي بالعربية */
+        .font-signature-ar { font-family: 'Amiri', serif; font-style: italic; }
+    </style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-4">
+{% include 'site_header.html' %}
+
+
+    <!-- أزرار التحكم والتحويل (لا تظهر عند حفظ الصورة) -->
+    <div id="action-buttons" class="mb-6 flex flex-wrap gap-4 justify-center items-center">
+        <!-- زر تحميل الصورة -->
+        <button onclick="downloadCertificate()" class="px-6 py-3 bg-dzGold text-slate-950 font-black rounded-xl shadow-lg hover:bg-amber-400 transition flex items-center gap-2 text-sm">
+             <span class="lang-text" data-ar="تحميل الشهادة كصورة" data-fr="Télécharger le certificat comme image" data-en="Download Certificate" data-tr="Sertifikayı resim olarak indir" data-es="Descargar certificado como imagen">تحميل الشهادة</span>
+        </button>
+        <!-- زر العودة -->
+        <a href="{% url 'student:student_dashboard' %}" class="px-6 py-3 bg-slate-800 text-white font-bold rounded-xl shadow hover:bg-slate-700 transition flex items-center gap-2 text-sm">
+            ← <span class="lang-text" data-ar="عودة لوحة التحكم" data-fr="Retour au tableau de bord" data-en="Back to Dashboard" data-tr="Kontrol paneline dön" data-es="Volver al panel de control">عودة لوحة التحكم</span>
+        </a>
+    </div>
+
+    <!-- حاوية الشهادة الرئيسية -->
+    <div id="certificate-card" class="w-full max-w-[1120px] aspect-[1.414/1] bg-white rounded-3xl shadow-2xl border-[16px] border-dzGreen relative overflow-hidden flex flex-col justify-between p-12 text-slate-900">
+        
+        <!-- إطار ذهبي هندسي فاخر -->
+        <div class="absolute inset-5 border-2 border-dzGold/60 rounded-2xl pointer-events-none"></div>
+        <div class="absolute inset-7 border border-dzGold/30 rounded-xl pointer-events-none"></div>
+
+        <!-- خلفية مائية لشعار المنصة -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+            <h1 class="text-[180px] font-black font-poppins text-dzGreen">Geo-Memory</h1>
+        </div>
+
+        <!-- رأس الشهادة (الشعار والمعرف مع محاذاة تلقائية) -->
+        <div class="relative z-10 flex justify-between items-center border-b-2 border-gray-100 pb-6">
+            <div class="flex items-center gap-4">
+                <!-- شعار المنصة الحقيقي -->
+                <div class="w-16 h-16 rounded-2xl overflow-hidden shadow-md border-2 border-dzGold/50 bg-white flex items-center justify-center p-1">
+                    <img src="{% static 'images/Geo-Memory.jpeg' %}" alt="Geo-Memory Logo" class="w-full h-full object-cover rounded-xl">
+                </div>
+                <div class="text-start">
+                    <h2 class="text-3xl font-black font-poppins text-dzGreen tracking-tight">Geo-<span class="text-dzGold">Memory</span></h2>
+                    <p class="text-[9px] font-tifinagh text-dzGold tracking-widest">التعليم يبدأ من هنا </p>
+                </div>
+            </div>
+            
+            <div class="text-end bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl">
+                <p class="text-[10px] font-bold text-gray-500 uppercase font-poppins lang-text" data-ar="معرف التحقق الرسمي" data-fr="Identifiant officiel de vérification" data-en="Verification ID" data-tr="Resmî doğrulama kimliği" data-es="Identificador oficial de verificación">معرف التحقق الرسمي</p>
+                <p class="text-xs font-mono font-bold text-dzGreen">{{ certificate.certificate_code }}</p>
+            </div>
+        </div>
+
+        <!-- محتوى الشهادة (الوسط) -->
+        <div class="relative z-10 text-center space-y-6 my-auto">
+            <div>
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider font-poppins lang-text" data-ar="شهادة إتمام ونجاح رسمية" data-fr="Certificat officiel de réussite" data-en="Official Certificate of Completion" data-tr="Resmî Tamamlama Sertifikası" data-es="Certificado oficial de finalización">شهادة إتمام ونجاح رسمية</span>
+                <h3 id="cert-title" class="text-3xl md:text-4xl font-bold font-amiri text-dzGreen mt-3 lang-text" data-ar="شهادة إتمام المسار التعليمي" data-fr="Certificat de fin du parcours éducatif" data-en="Certificate of Educational Path Completion" data-tr="Eğitim programını tamamlama sertifikası" data-es="Certificado de finalización del itinerario educativo">شهادة إتمام المسار التعليمي</h3>
+            </div>
+
+            <p class="text-sm text-gray-500 font-medium lang-text" data-ar="تشهد منصة Geo-Memory الرقمية بأن المتدرب(ة):" data-fr="La plateforme Geo-Memory certifie que l’apprenant(e) :" data-en="This is to certify that Geo-Memory digital platform recognizes that trainee:" data-tr="Geo-Memory dijital platformu aşağıdaki öğrencinin eğitimini tamamladığını onaylar:" data-es="La plataforma digital Geo-Memory certifica que el/la estudiante:">تشهد منصة Geo-Memory الرقمية بأن المتدرب(ة):</p>
+
+            <!-- اسم الطالب -->
+            <div class="py-1">
+                <h1 id="student-name-display" class="text-4xl md:text-5xl font-black text-slate-900 font-amiri border-b-2 border-dzGold pb-2 inline-block px-10" data-ar="{{ profile.first_name_ar }} {{ profile.last_name_ar }}" data-en="{{ profile.first_name_en|default:profile.first_name_ar }} {{ profile.last_name_en|default:profile.last_name_ar }}">
+                    {% if profile %}
+                        {{ profile.first_name_ar|default:profile.user.first_name }} {{ profile.last_name_ar|default:profile.user.last_name }}
+                    {% elif student %}
+                        {{ student.first_name_ar|default:student.user.first_name }} {{ student.last_name_ar|default:student.user.last_name }}
+                    {% elif user_profile %}
+                        {{ user_profile.first_name_ar|default:user_profile.user.first_name }} {{ user_profile.last_name_ar|default:user_profile.user.last_name }}
+                    {% else %}
+                        {{ request.user.first_name|default:request.user.username }}
+                    {% endif %}
+                </h1>
+            </div>
+
+            <p class="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed lang-text" data-ar="قد استكمل بنجاح كافة متطلبات واجتياز مسار الذاكرة الجغرافية والتاريخية، وأظهر تفوقاً ملحوظاً في استيعاب الوحدات التعليمية والتحليل المكاني الرقمي." data-fr="A satisfait aux exigences du parcours géographique et historique Geo-Memory et a démontré une excellente maîtrise des modules pédagogiques et de l’analyse spatiale numérique." data-en="Has successfully completed all requirements of the Geo-Memory spatial and historical learning path, demonstrating excellence in digital spatial analysis and geographic modules." data-tr="Geo-Memory coğrafi ve tarihî öğrenim programının tüm gerekliliklerini başarıyla tamamlamış, dijital mekânsal analiz modüllerinde üstün başarı göstermiştir." data-es="Ha completado satisfactoriamente los requisitos del itinerario geográfico e histórico de Geo-Memory y ha demostrado un excelente dominio del análisis espacial digital.">
+                قد استكمل بنجاح كافة متطلبات واجتياز مسار الذاكرة الجغرافية والتاريخية وأظهر تفوقاً ملحوظاً في استيعاب الوحدات التعليمية والتحليل المكاني الرقمي.
+            </p>
+            <p class="text-base font-black text-dzGreen">{{ certificate.course_name }}</p>
+        </div>
+
+        <!-- تذييل الشهادة (التوقيع واسم المؤسس الحقيقي، الـ QR Code، وتاريخ الإصدار) -->
+        <div class="relative z-10 grid grid-cols-3 items-end pt-6 border-t-2 border-gray-100">
+            
+            <!-- إمضاء واسم المؤسس الحقيقي (بتصميم Flexbox متمرّز ومنظم يمنع التداخل نهائياً) -->
+            <div class="flex flex-col items-start space-y-2">
+                <!-- حاوية الإمضاء الفني المتمركزة بدقة فوق الخط مباشرة -->
+                <div class="h-12 flex items-center justify-start select-none px-2">
+                    <p id="founder-signature" class="font-signature-ar text-blue-900 font-bold text-3xl transform -rotate-3" data-ar="بشوش م. أمين" data-en="M. Bachouche">
+                        بشوش م. أمين
+                    </p>
+                </div>
+                <!-- خط التوقيع وتفاصيل الاسم -->
+                <div class="pt-1 border-t border-gray-300 w-52 text-start">
+                    <p id="founder-name" class="text-sm font-extrabold text-slate-900 truncate" data-ar="بشوش محمد أمين" data-en="BACHOUCHE M A">بشوش محمد أمين</p>
+                    <p id="founder-title" class="text-xs font-bold text-dzGreen lang-text" data-ar="مؤسس منصة Geo-Memory" data-fr="Fondateur de Geo-Memory" data-en="Founder of Geo-Memory" data-tr="Geo-Memory kurucusu" data-es="Fundador de Geo-Memory">مؤسس منصة Geo-Memory</p>
+                </div>
+            </div>
+
+            <!-- QR Code الحقيقي في المنتصف -->
+            <div class="flex flex-col items-center justify-center space-y-1 text-center">
+                <div class="bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+                    <img id="qrcode" src="{{ qr_data_uri }}" alt="QR Verification" class="w-20 h-20">
+                </div>
+                <span class="text-[9px] font-bold text-dzGreen lang-text" data-ar="امسح للتحقق من صحة الشهادة" data-fr="Scannez pour vérifier le certificat" data-en="Scan to verify certificate" data-tr="Sertifikayı doğrulamak için tarayın" data-es="Escanea para verificar el certificado">امسح للتحقق من صحة الشهادة</span>
+            </div>
+
+            <!-- تاريخ الإصدار (جهة النهاية) -->
+            <div class="text-end space-y-1">
+                <p class="text-xs font-mono font-bold text-slate-700">{{ certificate.issue_date|date:"Y/m/d" }}</p>
+                <div class="border-t border-gray-300 pt-1 inline-block min-w-[140px]">
+                    <p class="text-xs font-bold text-slate-800 lang-text" data-ar="تاريخ الإصدار الرسمي" data-fr="Date officielle de délivrance" data-en="Official Issue Date" data-tr="Resmî düzenlenme tarihi" data-es="Fecha oficial de emisión">تاريخ الإصدار الرسمي</p>
+                    <p class="text-[10px] text-gray-400 lang-text" data-ar="موثق عبر خوادم المنصة" data-fr="Authentifié par les serveurs de la plateforme" data-en="Secured by Platform" data-tr="Platform sunucularında doğrulandı" data-es="Verificado por los servidores de la plataforma">موثق عبر خوادم المنصة</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- كود التحويل الديناميكي للغة وتحديث نصوص الإمضاء والخطوط -->
+    <script>
+        let currentLang = '{{ LANGUAGE_CODE|default:'ar' }}';
+        function downloadCertificate() {
+            const buttonContainer = document.getElementById('action-buttons');
+            buttonContainer.style.display = 'none'; // إخفاء الأزرار أثناء التقاط الصورة
+            
+            const certificateElement = document.getElementById('certificate-card');
+            
+            html2canvas(certificateElement, {
+                scale: 2, // دقة عالية جداً للصورة
+                useCORS: true,
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Geo-Memory-Certificate-${currentLang.toUpperCase()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                buttonContainer.style.display = 'flex'; // إعادة إظهار الأزرار
+            }).catch(err => {
+                console.error("Error generating image:", err);
+                buttonContainer.style.display = 'flex';
+            });
+        }
+    </script>
+
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+
+{% include 'site_footer.html' %}
+</body>
+</html>

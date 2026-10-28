@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أطلس الثورة التحريرية الجزائرية</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body>
+{% include 'site_header.html' %}
+
+    <div id="map"></div>
+
+    <div class="fixed-top-center">
+        <button id="revolution-trigger" class="rev-btn">اندلاع الثورة (نوفمبر 1954)</button>
+    </div>
+
+    <div class="side-panel" id="main-side-panel">
+        <div class="panel-header">
+            <button class="close-btn" onclick="closeSidebar()">×</button>
+            <h3 style="margin:0">بطاقة المعلومات التاريخية</h3>
+        </div>
+        <div id="welcome-msg" style="padding:20px; text-align:center;">إختر ولاية أو موقع معركة من الخريطة</div>
+        <div id="details-content" style="display:none" class="panel-body">
+            <div id="leader-img-container"></div>
+            <div class="info-row"><span class="info-label">المكان:</span><span id="p-wilaya" class="info-value"></span></div>
+            <div class="info-row"><span class="info-label" id="label-name">الاسم:</span><span id="p-leader" class="info-value"></span></div>
+            <div class="info-row"><span class="info-label">التاريخ:</span><span id="p-years" class="info-value"></span></div>
+            <div class="info-row" id="row-zones"><span class="info-label">المناطق:</span><span id="p-zones" class="info-value"></span></div>
+            <div id="p-bio" class="bio-box"></div>
+            <button id="stat-btn" class="btn-stats" onclick="toggleStats()">عرض إحصاء تقديري</button>
+            <div id="chart-container"><canvas id="martyrsChart"></canvas></div>
+        </div>
+    </div>
+
+    <div id="barrier-popup" class="barrier-modal">
+        <div class="modal-content">
+            <span class="close-popup" onclick="closeBarrierPopup()">&times;</span>
+            <div id="popup-header" class="modal-header"></div>
+            <div class="stat-grid">
+                <div class="stat-item"><span>الطول</span><strong id="m-length"></strong></div>
+                <div class="stat-item"><span>الألغام</span><strong id="m-bombs"></strong></div>
+            </div>
+            <div class="wilaya-list"><strong>الولايات:</strong><p id="m-wilayas"></p></div>
+            <div id="m-desc" class="warning-box"></div>
+        </div>
+    </div>
+
+    <div id="independence-message" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; justify-content: center; align-items: center; z-index: 1000;">
+        <h1>استقلال الجزائر - 5 جويلية 1962</h1>
+    </div>
+
+    <div id="mines-overlay" class="mines-panel-intro">
+        <div class="mines-title">عدد الألغام المزروعة (تقديري)</div>
+        <div id="mines-number" class="mines-count">0</div>
+        <div class="mines-footer">اضغط على الخريطة للمتابعة</div>
+    </div>
+
+    <!-- ملفات البيانات والخرائط -->
+    <script src="{% static 'js/wilayas_1.js' %}"></script>
+    <script src="{% static 'js/battles_2.js' %}"></script>
+    <script src="{% static 'js/centers_3.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // زر اندلاع الثورة
+        const revBtn = document.getElementById('revolution-trigger');
+        if (revBtn) {
+            revBtn.addEventListener('click', startRevolutionSymphony);
+        }
+
+        // إخفاء لوحة الألغام عند النقر على الخريطة
+        const mapElement = document.getElementById('map');
+        const minesOverlay = document.getElementById('mines-overlay');
+
+        if (mapElement && minesOverlay) {
+            mapElement.addEventListener('click', function() {
+                if (minesOverlay.style.display !== 'none') {
+                    minesOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        minesOverlay.style.display = 'none';
+                    }, 500); // اختفاء تدريجي خلال نصف ثانية
+                }
+            });
+        }
+    });
+    </script>
+
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+{% include 'site_footer.html' %}
+</body>
+</html>

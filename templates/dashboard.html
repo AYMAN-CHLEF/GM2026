@@ -1,0 +1,386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Tajawal:wght@400;700&family=Noto+Sans+Tifinagh&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | المنصة التعليمية | Geo-Memory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dzGreen: '#006633',
+                        dzGold: '#D4AF37',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .font-amiri { font-family: 'Amiri', serif; }
+        .font-tifinagh { font-family: 'Noto Sans Tifinagh', sans-serif; }
+    </style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-sans">
+{% include 'site_header.html' %}
+<div class="gm-user-strip">
+    <div><p class="text-xs font-bold text-slate-800">{% if profile.first_name_ar and profile.last_name_ar %}{{ profile.first_name_ar }} {{ profile.last_name_ar }}{% elif user.first_name_ar and user.last_name_ar %}{{ user.first_name_ar }} {{ user.last_name_ar }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}</p><p class="text-[10px] font-semibold text-dzGreen" data-gm-i18n="student-role">📚 طالب في المنصة التعليمية</p></div>
+    <div class="gm-user-avatar">{% if profile.profile_image %}<img src="{{ profile.profile_image.url }}?v={% now 'U' %}" alt="">{% else %}<span class="w-full h-full flex items-center justify-center bg-gray-300">👤</span>{% endif %}</div>
+</div>
+    
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <!-- Sidebar -->
+        <aside class="lg:col-span-1 space-y-6">
+
+            <!-- Card with 3D Flip Effect -->
+            <div class="relative w-full h-48 [perspective:1000px] group cursor-pointer" onclick="this.querySelector('.card-inner').classList.toggle('[transform:rotateY(180deg)]')">
+                <div class="card-inner relative w-full h-full duration-700 [transform-style:preserve-3d] shadow-xl rounded-3xl">
+                    
+                    <!-- Front Face -->
+                    <div class="absolute inset-0 w-full h-full bg-white rounded-3xl border border-gray-100 p-6 flex flex-col justify-between [backface-visibility:hidden]">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl border-2 border-dzGold overflow-hidden bg-slate-100 flex-shrink-0">
+                                    {% if profile.profile_image %}
+                                        <img src="{{ profile.profile_image.url }}?v={% now 'U' %}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full flex items-center justify-center text-lg bg-emerald-50 text-dzGreen">👤</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm truncate max-w-[140px]">
+                                        {% if profile.first_name_ar and profile.last_name_ar %}
+                                            {{ profile.first_name_ar }} {{ profile.last_name_ar }}
+                                        {% else %}
+                                            {{ user.get_full_name|default:user.username }}
+                                        {% endif %}
+                                    </h4>
+                                    <span class="inline-block mt-0.5 text-[11px] font-mono font-bold text-dzGreen bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                        ID: #{{ user.id|stringformat:"05d" }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                {% if profile.is_active_subscription %}
+                                <span class="text-[11px] font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">نشط</span>
+                                {% else %}
+                                <span class="text-[11px] font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200">غير مفعل</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-gray-400 border-t border-gray-100 pt-3">
+                            <span>معلومات الحساب الشخصي</span>
+                            <span class="text-dzGreen font-bold flex items-center gap-1 hover:underline">
+                                اضغط لتفعيل الاشتراك 💳 &larr;
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Back Face -->
+                    <div class="absolute inset-0 w-full h-full bg-emerald-900 text-white rounded-3xl p-6 flex flex-col justify-between [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-emerald-100 flex items-center gap-1.5">💳 تفعيل بطاقة الاشتراك</span>
+                            <span class="text-[10px] text-emerald-300">أدخل الكود السري</span>
+                        </div>
+                        <form action="{% url 'student:activate_subscription' %}" method="POST" class="flex gap-2" onclick="event.stopPropagation()">
+                            {% csrf_token %}
+                            <input type="text" name="card_pin" placeholder="GM-XXXX-XXXX" required 
+                                   class="flex-1 bg-white/10 border border-emerald-700 text-white placeholder-emerald-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-dzGold font-mono tracking-wider">
+                            <button type="submit" class="bg-dzGold hover:bg-amber-600 text-slate-900 text-xs font-bold px-4 py-2 rounded-xl transition shadow-md">تفعيل</button>
+                        </form>
+                        <div class="text-[10px] text-emerald-300 text-center cursor-pointer hover:text-white" onclick="event.stopPropagation(); this.closest('.card-inner').classList.remove('[transform:rotateY(180deg)]')">
+                            &#8634; العودة لمعلومات الحساب
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <nav class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm space-y-2">
+                <a href="{% url 'student:student_dashboard' %}" class="flex items-center gap-3 p-3.5 hover:bg-gray-50 rounded-xl font-medium text-sm text-slate-600 transition">🌐 منصة التعليم</a>
+                <a href="{% url 'student:student_dashboard' %}?profile=true" class="flex items-center gap-3 p-3.5 {% if show_profile %}bg-emerald-50 text-dzGreen font-bold{% else %}hover:bg-gray-50 text-slate-600 font-medium{% endif %} rounded-xl text-sm transition">⚙️ إعدادات الحساب</a>
+                <a href="#" class="flex items-center gap-3 p-3.5 hover:bg-gray-50 rounded-xl font-medium text-sm text-slate-600 transition">🏆 أوسمتي</a>
+                <a href="{% url 'student:student_certificate' %}" class="w-full py-3.5 px-4 bg-dzGold text-white font-bold rounded-xl shadow hover:bg-amber-600 transition flex items-center justify-center gap-2 text-sm text-center">🏆 عرض وتحميل شهادة الإتمام</a>
+                <div class="pt-2 mt-2 border-t border-gray-100">
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full flex items-center gap-3 p-3.5 text-red-600 hover:bg-red-50 rounded-xl font-bold text-sm transition">🚪 تسجيل الخروج</button>
+                    </form>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Content Area -->
+        <section class="lg:col-span-3 space-y-8 font-tajawal">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="p-4 mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-dzGreen font-bold text-sm text-center animate-pulse">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Dynamic Content Switcher -->
+            {% if show_profile %}
+                <!-- Full Account Settings Form -->
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-8">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-dzGreen font-amiri">إعدادات الحساب الشخصي</h2>
+                            <p class="text-xs text-gray-400 mt-1">تحديث بياناتك الشخصية، معلومات الاتصال، وصورة الملف الشخصي</p>
+                        </div>
+                        <a href="{% url 'student:student_dashboard' %}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">← عودة للمنصة</a>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" action="{% url 'student:student_dashboard' %}?profile=true" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">الاسم الأول (بالعربية)</label>
+                                <input type="text" name="first_name_ar" value="{{ profile.first_name_ar|default:'' }}" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-dzGreen">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">اسم العائلة (بالعربية)</label>
+                                <input type="text" name="last_name_ar" value="{{ profile.last_name_ar|default:'' }}" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-dzGreen">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">البريد الإلكتروني</label>
+                                <input type="email" name="email" value="{{ user.email|default:'' }}" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-dzGreen">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">رقم الهاتف</label>
+                                <input type="text" name="phone_number" value="{{ profile.phone_number|default:'' }}" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-dzGreen">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-2">صورة الملف الشخصي</label>
+                            <input type="file" name="profile_image" class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-dzGreen hover:file:bg-emerald-100">
+                        </div>
+
+                        <div class="pt-4 border-t flex justify-end">
+                            <button type="submit" class="px-8 py-3.5 bg-dzGreen text-white font-bold rounded-xl shadow hover:bg-emerald-900 transition text-sm">حفظ التعديلات</button>
+                        </div>
+                    </form>
+                </div>
+
+            {% elif request.GET.subject and not request.GET.level %}
+                <!-- Subject Levels Selection -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-dzGreen capitalize font-amiri">
+                                {% if request.GET.subject == 'history' %}تاريخ الجزائر <span class="text-sm font-tifinagh text-dzGold tracking-widest">(ⵜⴰⵔⵉⵅ ⵏ ⴷⵣⴰⵢⴻⵔ)</span>
+                                {% else %}جغرافيا الجزائر <span class="text-sm font-tifinagh text-dzGold tracking-widest">(ⵊⵓⵖⵔⴰⴼⵉⵢⴰ ⵏ ⴷⵣⴰⵢⴻⵔ)</span>{% endif %}
+                            </h2>
+                            <p class="text-xs text-gray-400 mt-1">اختر الطور الدراسي لعرض المراحل والسنوات المتاحة</p>
+                        </div>
+                        <a href="{% url 'student:student_dashboard' %}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">← عودة للمسارات</a>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Primary Level -->
+                        <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level=primary" class="group relative bg-white rounded-3xl overflow-hidden border-2 border-gray-100 hover:border-dzGold transition-all shadow-md hover:shadow-xl duration-500">
+                            <div class="h-44 w-full overflow-hidden relative">
+                                <img src="{% static 'images/primary_level.png' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-5 text-center text-white">
+                                <h3 class="font-amiri text-2xl font-bold mb-1">التعليم الابتدائي</h3>
+                                <div class="w-12 h-0.5 bg-dzGold my-1.5 rounded-full"></div>
+                                <p class="font-tifinagh text-xs tracking-wider text-dzGold">ⴰⵙⵎⵓⵜⵜⵉ ⴰⵎⵣⵡⴰⵔⵓ</p>
+                            </div>
+                        </a>
+
+                        <!-- Middle Level -->
+                        <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level=middle" class="group relative bg-white rounded-3xl overflow-hidden border-2 border-gray-100 hover:border-dzGreen transition-all shadow-md hover:shadow-xl duration-500">
+                            <div class="h-44 w-full overflow-hidden relative">
+                                <img src="{% static 'images/middle_level.png' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-5 text-center text-white">
+                                <h3 class="font-amiri text-2xl font-bold mb-1">التعليم المتوسط</h3>
+                                <div class="w-12 h-0.5 bg-dzGold my-1.5 rounded-full"></div>
+                                <p class="font-tifinagh text-xs tracking-wider text-dzGold">ⴰⵙⵎⵓⵜⵜⵉ ⴰⵏⴰⵎⵎⴰⵙ</p>
+                            </div>
+                        </a>
+
+                        <!-- Secondary Level -->
+                        <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level=secondary" class="group relative bg-white rounded-3xl overflow-hidden border-2 border-gray-100 hover:border-dzGold transition-all shadow-md hover:shadow-xl duration-500">
+                            <div class="h-44 w-full overflow-hidden relative">
+                                <img src="{% static 'images/secondary_level.png' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-5 text-center text-white">
+                                <h3 class="font-amiri text-2xl font-bold mb-1">التعليم الثانوي</h3>
+                                <div class="w-12 h-0.5 bg-dzGold my-1.5 rounded-full"></div>
+                                <p class="font-tifinagh text-xs tracking-wider text-dzGold">ⴰⵙⵎⵓⵜⵜⵉ ⵓⵏⵏⵉⴳ</p>
+                            </div>
+                        </a>
+
+                        <!-- University Level -->
+                        <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level=university" class="group relative bg-white rounded-3xl overflow-hidden border-2 border-gray-100 hover:border-dzGreen transition-all shadow-md hover:shadow-xl duration-500">
+                            <div class="h-44 w-full overflow-hidden relative">
+                                <img src="{% static 'images/university_level.png' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                            </div>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-5 text-center text-white">
+                                <h3 class="font-amiri text-2xl font-bold mb-1">التعليم الجامعي</h3>
+                                <div class="w-12 h-0.5 bg-dzGold my-1.5 rounded-full"></div>
+                                <p class="font-tifinagh text-xs tracking-wider text-dzGold">ⴰⵙⵎⵓⵜⵜⵉ ⵓⵏⵏⵉⴳ ⵏ ⵜⵙⴷⴰⵡⵉⵜ</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            {% elif request.GET.subject and request.GET.level and not request.GET.academic_year and not lesson %}
+                <!-- Dynamic Academic Years List -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-dzGreen font-amiri">
+                                اختر السنة الدراسية في {% if request.GET.subject == 'history' %}التاريخ{% else %}الجغرافيا{% endif %}
+                            </h2>
+                            <p class="text-xs text-gray-400 mt-1">السنوات الدراسية المتاحة ضمن هذا الطور</p>
+                        </div>
+                        <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">← عودة للأطوار</a>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {% for ay in available_academic_years %}
+                            <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level={{ request.GET.level }}&academic_year={{ ay.id }}" class="p-5 rounded-2xl border-2 border-gray-100 hover:border-dzGold bg-white shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                                <div>
+                                    <span class="text-[10px] bg-amber-50 text-dzGold px-2 py-1 rounded-md font-bold">سنة دراسية</span>
+                                    <h3 class="font-bold text-lg text-slate-800 mt-3 group-hover:text-dzGreen transition">{{ ay.name }}</h3>
+                                </div>
+                                <div class="mt-6 flex items-center justify-between text-xs text-gray-500 border-t pt-3">
+                                    <span>عرض الدروس</span>
+                                    <span class="text-dzGreen font-bold">دخول ←</span>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="col-span-full text-center py-10 text-gray-400 text-sm">
+                                لا توجد سنوات دراسية مضافة لهذا الطور من طرف الإدارة بعد. ترقبونا قريباً!
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% elif request.GET.subject and request.GET.level and request.GET.academic_year and not lesson %}
+                <!-- Lessons List for Selected Year -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-dzGreen font-amiri">قائمة الدروس</h2>
+                            <p class="text-xs text-gray-400 mt-1">اختر الدرس لبدء المشاهدة والتعلم</p>
+                        </div>
+                        <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level={{ request.GET.level }}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">← عودة للسنوات</a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for l in filtered_lessons %}
+                            <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level={{ request.GET.level }}&academic_year={{ request.GET.academic_year }}&lesson={{ l.id }}" class="p-5 rounded-2xl border border-gray-100 hover:border-dzGreen bg-white shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                                <div>
+                                    <span class="text-[10px] bg-emerald-50 text-dzGreen px-2 py-1 rounded-md font-bold">{{ l.module.title }}</span>
+                                    <h3 class="font-bold text-lg text-slate-800 mt-2">{{ l.title }}</h3>
+                                </div>
+                                <div class="mt-4 flex items-center justify-between text-xs text-gray-500 border-t pt-3">
+                                    <span>🎥 مشاهدة الدرس</span>
+                                    <span class="text-dzGold font-bold">دخول ←</span>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="col-span-2 text-center py-10 text-gray-400 text-sm">
+                                لا توجد دروس مضافة لهذا المستوى حتى الآن. ترقبونا قريباً!
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% elif lesson %}
+                <!-- Single Lesson View -->
+                <div class="bg-white p-8 rounded-3xl border border-dzGreen/20 shadow-lg animate-in fade-in duration-500 space-y-6">
+                    <div class="flex items-center justify-between border-b pb-4">
+                        <div>
+                            <span class="text-xs font-bold text-dzGold bg-emerald-50 px-3 py-1 rounded-full">{{ lesson.module.title }}</span>
+                            <h2 class="text-2xl font-black text-dzGreen mt-2">{{ lesson.title }}</h2>
+                        </div>
+                        <a href="{% url 'student:student_dashboard' %}?subject={{ request.GET.subject }}&level={{ request.GET.level }}&academic_year={{ request.GET.academic_year }}" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition">← عودة للدروس</a>
+                    </div>
+
+                    <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-inner">
+                        <iframe src="{{ lesson.video_url }}" class="w-full h-full" allowfullscreen></iframe>
+                    </div>
+
+                    <div class="prose max-w-none text-slate-700 leading-relaxed text-lg">
+                        <p>{{ lesson.content }}</p>
+                    </div>
+
+                    {% if lesson.arcgis_map_url and lesson.arcgis_map_url != '#' %}
+                        <div class="pt-4 border-t">
+                            <a href="{{ lesson.arcgis_map_url }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-dzGold text-white font-bold rounded-xl shadow hover:bg-amber-600 transition">
+                                🗺️ استكشف خريطة ArcGIS التفاعلية
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <div class="pt-4 flex gap-4">
+                        <form method="post" action="{% url 'student:mark_lesson_complete' lesson.id %}">{% csrf_token %}<button type="submit" class="px-6 py-3 bg-dzGreen text-white font-bold rounded-xl hover:bg-emerald-900 transition">✓ تم إتمام الدرس</button></form>
+                    </div>
+                </div>
+
+            {% else %}
+                <!-- Default Main Dashboard (History & Geography Paths) -->
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
+                    <h2 class="text-2xl font-black text-slate-800">مرحباً بك في المنصة التعليمية</h2>
+                    <p class="text-gray-500 mt-2 text-sm">اختر المسار التعليمي المستقل لتبدأ رحلتك في اكتشاف ذاكرة الجزائر أو تضاريسها.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- History Track -->
+                    <a href="{% url 'student:student_dashboard' %}?subject=history" class="group relative bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-md hover:shadow-2xl transition-all duration-500">
+                        <div class="h-56 w-full overflow-hidden relative">
+                            <img src="{% static 'images/history_path.png' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors"></div>
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white text-center">
+                            <h3 class="font-amiri text-3xl font-bold mb-2">تاريخ الجزائر</h3>
+                            <p class="font-tifinagh text-xl tracking-widest text-dzGold">ⵟⴰⵔⵉⵅ ⵏ ⴷⵣⴰⵢⴻⵔ</p>
+                        </div>
+                    </a>
+
+                    <!-- Geography Track -->
+                    <a href="{% url 'student:student_dashboard' %}?subject=geography" class="group relative bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-md hover:shadow-2xl transition-all duration-500">
+                        <div class="h-56 w-full overflow-hidden relative">
+                            <img src="{% static 'images/geography_path.png' %}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors"></div>
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white text-center">
+                            <h3 class="font-amiri text-3xl font-bold mb-2">جغرافيا الجزائر</h3>
+                            <p class="font-tifinagh text-xl tracking-widest text-dzGold">ⵊⵓⵖⵔⴰⴼⵉⵢⴰ ⵏ ⴷⵣⴰⵢⴻⵔ</p>
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    
+
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+{% include 'site_footer.html' %}
+</body>
+</html>

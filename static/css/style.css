@@ -1,0 +1,417 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+body { 
+    font-family: 'Cairo', sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    overflow: hidden; 
+}
+
+#map { 
+    width: 100%; 
+    height: 100vh; 
+    z-index: 1; 
+    background: #f0f0f0; 
+}
+
+/* بطاقة المعلومات الجانبية - تم تعديلها إلى fixed لضمان ظهورها فوق الخريطة دائماً */
+.side-panel {
+    position: fixed; 
+    top: 20px; 
+    right: 20px; 
+    width: 340px;
+    z-index: 2000; 
+    background: #fff; 
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+    direction: rtl;
+    max-height: 90vh; 
+    overflow-y: auto; 
+    border: 1px solid #ddd;
+}
+
+.panel-header { 
+    background: #006633; 
+    color: white; 
+    padding: 15px; 
+    border-radius: 15px 15px 0 0; 
+    text-align: center; 
+    position: relative; 
+}
+
+.close-btn { 
+    position: absolute; 
+    left: 10px; 
+    top: 10px; 
+    background: rgba(0,0,0,0.2); 
+    border: none; 
+    color: white; 
+    border-radius: 50%; 
+    width: 25px; 
+    height: 25px; 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+
+.panel-body { 
+    padding: 20px; 
+}
+
+/* الحاوية التي تحتضن الصورة */
+#leader-img-container {
+    width: 100%;       
+    height: 200px;     
+    overflow: hidden;  
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background: #f0f0f0;
+    position: relative; 
+}
+
+/* الصورة بداخل الحاوية */
+#leader-img-container img {
+    width: 100% !important;      
+    height: 200px !important;      
+    object-fit: cover !important; 
+    object-position: center top !important; 
+    display: block !important;
+    border-radius: 8px;
+}
+
+.info-row { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 8px; 
+    border-bottom: 1px dashed #eee; 
+    padding-bottom: 5px; 
+}
+
+.info-label { 
+    color: #666; 
+    font-weight: bold; 
+    font-size: 0.9rem; 
+}
+
+.info-value { 
+    color: #000; 
+    font-weight: bold; 
+}
+
+.bio-box { 
+    background: #f9f9f9; 
+    padding: 10px; 
+    border-radius: 8px; 
+    font-size: 0.85rem; 
+    line-height: 1.6; 
+    margin: 15px 0; 
+    border-right: 4px solid #006633; 
+}
+
+.btn-stats { 
+    width: 100%; 
+    background: #cc0000; 
+    color: white; 
+    border: none; 
+    padding: 10px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    margin-top: 10px;
+}
+
+#chart-container { 
+    display: none; 
+    margin-top: 20px; 
+}
+
+.custom-marker { 
+    transition: all 0.3s ease; 
+}
+
+.custom-marker:hover { 
+    transform: scale(1.5); 
+    filter: brightness(1.2); 
+}
+
+/* تأثير الخط المكهرب لخط شال وموريس */
+.electric-line {
+    stroke-dasharray: 10, 5;
+    animation: dash 1s linear infinite;
+    filter: drop-shadow(0 0 5px #ffff00);
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -15;
+    }
+}
+
+/* تأثير النبض للخطوط */
+.line-glow {
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { opacity: 0.6; stroke-width: 3; }
+    to { opacity: 1; stroke-width: 6; }
+}
+
+/* لوحة الألغام العائمة */
+.mines-panel {
+    position: fixed; 
+    bottom: 20px;
+    left: 20px;
+    z-index: 3000;
+    background: rgba(44, 44, 44, 0.9);
+    color: #ff3333;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #cc0000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    text-align: center;
+    min-width: 220px;
+    font-family: 'Cairo', sans-serif;
+    animation: border-pulse 2s infinite;
+}
+
+.mines-title { 
+    color: #fff; 
+    font-size: 0.8rem; 
+    margin-bottom: 5px; 
+    font-weight: bold; 
+}
+
+.mines-count { 
+    font-size: 2rem; 
+    font-weight: 800; 
+    text-shadow: 0 0 10px #ff0000;
+    letter-spacing: 2px;
+}
+
+.mines-footer { 
+    color: #aaa; 
+    font-size: 0.65rem; 
+    margin-top: 5px; 
+}
+
+@keyframes border-pulse {
+    0% { border-color: #cc0000; }
+    50% { border-color: #ff6666; }
+    100% { border-color: #cc0000; }
+}
+
+/* النافذة المنبثقة للخطوط (Barrier Modal) */
+.barrier-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0; 
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px); 
+    transition: 0.3s;
+    direction: rtl; 
+    text-align: right; 
+    font-family: 'Cairo', Tahoma, Arial, sans-serif;
+}
+
+.modal-content {
+    background: #1a1a1a; 
+    color: white; 
+    margin: 10% auto; 
+    padding: 25px;
+    border: 3px solid #cc0000; 
+    width: 400px; 
+    border-radius: 15px;
+    position: relative; 
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+}
+
+.modal-header { 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    color: #ffcc00; 
+    border-bottom: 1px solid #444; 
+    padding-bottom: 10px; 
+    margin-bottom: 15px; 
+}
+
+.stat-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+    direction: rtl;
+}
+
+.stat-item { 
+    background: #333; 
+    padding: 10px; 
+    border-radius: 8px; 
+    text-align: center; 
+}
+
+.stat-item span { 
+    display: block; 
+    font-size: 0.7rem; 
+    color: #aaa; 
+}
+
+.wilaya-list { 
+    background: #222; 
+    padding: 10px 15px 10px 5px; 
+    border-radius: 8px; 
+    margin-bottom: 15px; 
+    border-right: 4px solid #ffcc00; 
+    border-left: none;
+}
+
+.warning-box { 
+    font-size: 0.9rem; 
+    line-height: 1.5; 
+    color: #ddd; 
+}
+
+.close-popup { 
+    position: absolute; 
+    left: auto; 
+    right: 15px; 
+    top: 10px; 
+    font-size: 25px; 
+    cursor: pointer; 
+    color: #fff; 
+}
+
+.explosion-hint { 
+    margin-top: 15px; 
+    font-size: 0.7rem; 
+    text-align: center; 
+    color: #ff3333; 
+    animation: pulse 1s infinite; 
+}
+
+/* تأثير الاهتزاز عند الانفجار */
+.shake { 
+    animation: shake 0.5s; 
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    40% { transform: translate(3px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    80% { transform: translate(3px, -1px) rotate(1deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.fixed-top-center {
+    position: fixed; 
+    top: 20px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    z-index: 9999;
+}
+
+.rev-btn {
+    background: linear-gradient(45deg, #ce1126, #8b0000); 
+    color: white;
+    padding: 12px 30px; 
+    border-radius: 50px; 
+    border: 2px solid #fff;
+    font-weight: bold; 
+    cursor: pointer; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* دوائر الثورة المتوسعة */
+.expansion-circle {
+    fill: #ce1126; 
+    fill-opacity: 0.4; 
+    stroke: #ff0000; 
+    stroke-width: 1;
+    filter: blur(10px); 
+    transition: r 4s ease-out; 
+}
+
+/* رسالة النهاية */
+.final-msg {
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.9); 
+    z-index: 10000; 
+    justify-content: center; 
+    align-items: center;
+    color: white; 
+    text-align: center; 
+    font-family: 'Cairo', sans-serif;
+}
+
+.msg-content { 
+    max-width: 600px; 
+    padding: 40px; 
+    border: 2px solid #006233; 
+    border-radius: 20px; 
+    background: #111; 
+}
+
+.msg-content h2 { 
+    color: #ce1126; 
+    margin-bottom: 20px; 
+}
+
+.msg-content p { 
+    line-height: 1.8; 
+    font-size: 1.1rem; 
+}
+
+.reload-btn { 
+    margin-top: 20px; 
+    padding: 10px 25px; 
+    background: #006233; 
+    border: none; 
+    color: white; 
+    cursor: pointer; 
+    border-radius: 5px; 
+}
+
+/* تنسيق لوحة الألغام الترحيبية (Intro) */
+.mines-panel-intro {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000; 
+    background: rgba(0, 0, 0, 0.9);
+    color: #ffcc00; 
+    padding: 40px;
+    border-radius: 15px;
+    border: 2px solid #cc0000;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    transition: opacity 0.5s ease;
+    cursor: pointer;
+}
+
+.mines-panel-intro .mines-title { 
+    font-size: 1.5rem; 
+    margin-bottom: 10px; 
+}
+
+.mines-panel-intro .mines-count { 
+    font-size: 3.5rem; 
+    font-weight: bold; 
+    color: #fff; 
+    margin: 10px 0; 
+}
+
+.mines-panel-intro .mines-footer { 
+    font-size: 0.9rem; 
+    color: #aaa; 
+    margin-top: 15px; 
+}

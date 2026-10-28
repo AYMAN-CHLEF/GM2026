@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html><html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Geo-Memory | محتوى الدرس</title><link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head><body>
+{% include 'site_header.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- منطقة الدرس (الفيديو) -->
+    <section class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h1 class="text-2xl font-black text-emerald-800 mb-4">{{ lesson.title }}</h1>
+            <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-inner">
+                <iframe class="w-full h-full" src="{{ lesson.video_url }}" allowfullscreen></iframe>
+            </div>
+            
+            <div class="mt-6 flex justify-between items-center">
+                <span class="text-xs font-bold text-gray-400">الوحدة: {{ lesson.module.title }}</span>
+                
+                <!-- زر إتمام الدرس الآن يعمل برمجياً -->
+                <form action="{% url 'student:mark_lesson_complete' lesson.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-800 transition shadow-lg">
+                        إتمام الدرس والانتقال للتالي ➔
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- المحتوى النصي للدرس -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 class="text-lg font-bold text-emerald-800 mb-2">محتوى الدرس:</h2>
+            <p class="text-gray-700 leading-relaxed">{{ lesson.content }}</p>
+        </div>
+    </section>
+
+    <!-- منطقة الأنشطة الجغرافية والتاريخية -->
+    <aside class="space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h3 class="font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                <span>📍</span> الأنشطة التفاعلية
+            </h3>
+            <div class="space-y-3">
+                {% if lesson.is_interactive_map %}
+                <button onclick="toggleMapModal()" class="w-full p-4 bg-emerald-50 text-emerald-700 rounded-xl font-bold border border-emerald-600 hover:bg-emerald-100 transition">
+                    استكشف خريطة {{ lesson.title }} التفاعلية
+                </button>
+                {% endif %}
+                
+                <a href="#" class="block w-full p-4 bg-amber-500 text-white rounded-xl font-bold text-center hover:bg-amber-600 transition">
+                    ابدأ الاختبار القصير 📝
+                </a>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- النافذة المنبثقة للخريطة (Modal) -->
+<div id="mapModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onclick="closeModalOutside(event)">
+    <div id="modalContent" class="bg-white w-full max-w-5xl h-[80vh] rounded-3xl overflow-hidden relative shadow-2xl">
+        <button onclick="toggleMapModal()" class="absolute top-4 right-4 z-10 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition">✕</button>
+        <iframe src="{{ lesson.arcgis_map_url }}" class="w-full h-full"></iframe>
+    </div>
+</div>
+
+<script>
+    // تبديل النافذة
+    function toggleMapModal() {
+        document.getElementById('mapModal').classList.toggle('hidden');
+    }
+
+    // إغلاق النافذة عند الضغط خارجها
+    function closeModalOutside(event) {
+        const modal = document.getElementById('mapModal');
+        const content = document.getElementById('modalContent');
+        if (event.target === modal) {
+            toggleMapModal();
+        }
+    }
+</script>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+{% include 'site_footer.html' %}
+</body></html>
+{% endblock %}

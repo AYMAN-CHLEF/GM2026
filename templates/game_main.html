@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Memory | غرفة المستكشف</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root { --gold: #d4af37; --emerald: #1b4332; --light-emerald: #2d6a4f; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: #081c15; color: white; }
+        
+        .explorer-hud { background: var(--emerald); padding: 15px 30px; display: flex; justify-content: space-between; border-bottom: 3px solid var(--gold); align-items: center; flex-wrap: wrap; gap: 10px; }
+        .player-card { background: linear-gradient(135deg, #0d2b1f, var(--emerald)); padding: 15px; border: 2px solid var(--gold); border-radius: 12px; min-width: 280px; text-align: center; }
+        .score-box { font-size: 1.5em; color: var(--gold); font-weight: bold; margin-top: 5px; }
+        #notification-area { font-size: 0.9em; margin-top: 10px; min-height: 25px; font-weight: bold; }
+        
+        .game-content { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; }
+        #map { height: 500px; border: 3px solid var(--gold); border-radius: 10px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+        .puzzle-box { background: var(--emerald); padding: 25px; border-radius: 15px; border: 1px solid var(--gold); }
+        .btn-option { display: block; width: 100%; padding: 12px; margin: 10px 0; background: #2d6a4f; border: 1px solid var(--gold); color: white; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .btn-option:hover { background: var(--gold); color: black; font-weight: bold; }
+
+        /* تنسيق بطاقة النهاية */
+        #end-card { display: none; position: fixed; top: 20%; left: 10%; right: 10%; background: var(--emerald); padding: 40px; border: 3px solid var(--gold); border-radius: 20px; text-align: center; z-index: 1000; }
+        
+        /* دعم الهاتف */
+        @media (max-width: 768px) { .game-content { grid-template-columns: 1fr; } #map { height: 300px; } }
+    </style>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body>
+{% include 'site_header.html' %}
+
+
+<div class="explorer-hud">
+    <div class="logo"><span style="font-size: 1.5em; color: var(--gold); font-weight: bold;"> Geo-Memory</span></div>
+    <div class="player-card">
+        <div>المستكشف: <strong>{{ serial_code }}</strong></div>
+        <div class="score-box">النقاط: <span id="score">0</span></div>
+        <div id="notification-area"></div>
+    </div>
+    <div class="stats" style="display: flex; gap: 20px;">
+        <span>⏱️ الوقت: <b id="timer" style="color: var(--gold);">30</b></span>
+        <span>⚡ الطاقة: <progress id="stamina" value="100" max="100"></progress></span>
+    </div>
+</div>
+
+<div class="game-content">
+    <div id="map"></div>
+    <div class="puzzle-box">
+        <h3 style="color: var(--gold);">مخطوطة اللغز التاريخي</h3>
+        <div id="puzzle-area">جارٍ التحميل...</div>
+        <div id="items" style="margin-top: 20px; font-size: 2em;"></div>
+    </div>
+</div>
+
+<div id="end-card">
+    <h1 id="end-title" style="color: var(--gold);"></h1>
+    <p id="end-message"></p>
+    <button class="btn-option" onclick="location.reload()">إعادة المغامرة</button>
+</div>
+
+<script>
+    const levels = [
+        { id: 1, name: "تيمقاد", coords: [35.48, 6.47], zoom: 12, question: "ما هو لقب مدينة تيمقاد التاريخي؟", options: ["بومبي إفريقيا", "روما الصغرى"], correct: 0 },
+        { id: 2, name: "قصبة الجزائر", coords: [36.78, 3.05], zoom: 15, question: "في أي قرن بُنيت قصبة الجزائر؟", options: ["القرن 16", "القرن 10"], correct: 0 },
+        { id: 3, name: "صحراء طاسيلي", coords: [25.00, 8.00], zoom: 6, question: "ما الذي تشتهر به نقوش طاسيلي؟", options: ["رسومات ما قبل التاريخ", "كتابات رومانية"], correct: 0 }
+    ];
+
+    let currentLevel = 0, score = 0, stamina = 100, timeLeft = 30, timer;
+    var map = L.map('map').setView([35.5, 3.5], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // إضافة دبابيس لكل المواقع
+    levels.forEach(lvl => L.marker(lvl.coords).addTo(map).bindPopup(lvl.name));
+
+    function showNotification(msg, color = "#d4af37") {
+        const area = document.getElementById('notification-area');
+        area.innerText = msg; area.style.color = color;
+        setTimeout(() => { area.innerText = ""; }, 3000);
+    }
+
+    function showEndCard(title, msg) {
+        document.getElementById('end-card').style.display = 'block';
+        document.getElementById('end-title').innerText = title;
+        document.getElementById('end-message').innerText = msg;
+    }
+
+    function startTimer() {
+        clearInterval(timer); timeLeft = 30;
+        document.getElementById('timer').innerText = timeLeft;
+        timer = setInterval(() => {
+            timeLeft--; document.getElementById('timer').innerText = timeLeft;
+            if (timeLeft <= 0) { clearInterval(timer); processAnswer(false); showNotification("⏱️ نفد الوقت!", "#ff4d4d"); }
+        }, 1000);
+    }
+
+    function loadLevel(index) {
+        let level = levels[index];
+        map.flyTo(level.coords, level.zoom, { duration: 2 });
+        document.getElementById('puzzle-area').innerHTML = `<p><strong>المستوى ${level.id}: ${level.question}</strong></p>` + 
+            level.options.map((opt, i) => `<button class="btn-option" onclick="checkAnswer(${i})">${opt}</button>`).join('');
+        startTimer();
+    }
+
+    function checkAnswer(index) {
+        clearInterval(timer);
+        if (index === levels[currentLevel].correct) {
+            score += 100; document.getElementById('score').innerText = score;
+            document.getElementById('items').innerHTML += "📜";
+            showNotification("✅ إجابة صحيحة!", "#2ecc71");
+            currentLevel++;
+            if (currentLevel < levels.length) setTimeout(() => loadLevel(currentLevel), 1000);
+            else showEndCard("🎉 مستكشف أسطوري!", "لقد أتممت جميع المخطوطات برصيد: " + score);
+        } else { processAnswer(false); }
+    }
+
+    function processAnswer(isCorrect) {
+        if (!isCorrect) {
+            stamina -= 20; document.getElementById('stamina').value = stamina;
+            showNotification("❌ خطأ! خسرت طاقة", "#ff4d4d");
+            if (stamina <= 0) showEndCard("💀 خاسر", "لقد نفدت طاقتك في البراري.");
+        }
+    }
+
+    window.onload = () => loadLevel(0);
+</script>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+
+{% include 'site_footer.html' %}
+</body>
+</html>

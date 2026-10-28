@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب موحد | Geo-Memory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { dzGreen: '#006633', dzGold: '#D4AF37' } } } }
+    </script>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen font-sans py-12 gm-centered-page">
+{% include 'site_header.html' %}
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 max-w-lg w-full mx-4">
+        <div class="text-center mb-8">
+            <span class="text-3xl font-black text-dzGreen tracking-tight">Geo-<span class="text-dzGold">Memory</span></span>
+            <p class="text-gray-500 text-sm mt-2">أنشئ حسابك الجديد واختر المسار المفضل لديك لبدء الرحلة</p>
+        </div>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="p-4 bg-red-50 text-red-600 text-xs rounded-xl space-y-1">
+                <p class="font-bold">يرجى تصحيح الأخطاء التالية:</p>
+                <ul class="list-disc pr-4">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if rate_limited %}<div class="p-3 bg-amber-50 text-amber-800 text-sm font-semibold rounded-lg text-center" role="alert">تم إيقاف طلبات التسجيل مؤقتاً لحماية الخدمة. حاول مجدداً بعد 30 دقيقة.</div>{% endif %}
+
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <label class="block text-xs font-bold text-gray-500 mb-2.5 uppercase tracking-wide">اختر نوع الحساب والمسار العملي:</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-dzGreen transition font-semibold text-sm shadow-sm select-none">
+                        <input type="radio" name="account_space" value="education" {% if target_space != 'gis_training' %}checked{% endif %} class="w-4 h-4 text-dzGreen focus:ring-dzGreen border-gray-300">
+                        <div class="flex flex-col">
+                            <span class="text-gray-800 font-bold">📖 مسار التعليم</span>
+                            <span class="text-[10px] text-gray-400 font-normal">الدروس والمحتوى التاريخي الجغرافي</span>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-dzGold transition font-semibold text-sm shadow-sm select-none">
+                        <input type="radio" name="account_space" value="gis_training" {% if target_space == 'gis_training' %}checked{% endif %} class="w-4 h-4 text-dzGold focus:ring-dzGold border-gray-300">
+                        <div class="flex flex-col">
+                            <span class="text-gray-800 font-bold">🛠️ تدريب GIS المتقدم</span>
+                            <span class="text-[10px] text-gray-400 font-normal">ورشات وخرائط هندسية تفاعلية</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="space-y-4 font-medium text-sm text-gray-700">
+                {% for field in form %}
+                    <div class="flex flex-col">
+                        <label class="mb-1.5 font-bold text-gray-800" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <span class="text-[10px] text-gray-400 mt-1">{{ field.help_text|safe }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="w-full mt-4 py-3.5 bg-dzGreen text-white font-bold rounded-xl shadow-md hover:bg-emerald-800 transition duration-300 text-base">
+                إنشاء الحساب وبدء الرحلة 🎓
+            </button>
+        </form>
+        
+        <div class="text-center mt-6 pt-4 border-t border-gray-100">
+            <a href="{% url 'login' %}" class="text-sm text-gray-500 hover:text-dzGreen font-semibold">لديك حساب بالفعل؟ سجل دخولك من هنا</a>
+        </div>
+    </div>
+
+    <style>
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; 
+            border-radius: 0.75rem; outline: none; transition: all 0.3s; background-color: #f9fafb;
+        }
+        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus { 
+            border-color: #006633; box-shadow: 0 0 0 3px rgba(0, 102, 51, 0.1); 
+        }
+        input[type="text"], input[type="password"] { text-align: right; direction: rtl; }
+        input[type="email"] { text-align: left; direction: ltr; }
+    </style>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+
+{% include 'site_footer.html' %}
+</body>
+</html>

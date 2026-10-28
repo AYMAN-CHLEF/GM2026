@@ -1,0 +1,40 @@
+{% load static i18n %}
+<header class="gm-header">
+  <div class="gm-header-inner">
+    <a class="gm-logo" href="{% url 'home' %}" aria-label="Geo-Memory — الرئيسية">
+      <img src="{% static 'images/Geo-Memory.jpeg' %}" alt="Geo-Memory">
+      <span>Geo-<b>Memory</b></span>
+    </a>
+    <nav class="gm-nav" aria-label="التنقل الرئيسي">
+      <a href="{% url 'home' %}" data-gm-i18n="home">الرئيسية</a>
+      <a href="{% url 'home' %}#about" data-gm-i18n="about">من نحن</a>
+      <a href="{% url 'atlases' %}" data-gm-i18n="atlases">الأطالس</a>
+      <a href="{% url 'digital_museum' %}" data-gm-i18n="museum">المتحف الرقمي</a>
+      <a href="{% url 'library' %}" data-gm-i18n="library">المكتبة التاريخية</a>
+      <a href="{% url 'public:impact' %}" data-gm-i18n="innovation">الابتكار والأثر الاقتصادي</a>
+    </nav>
+    <div class="gm-header-actions">
+      {% if request.resolver_match.url_name == 'digital_museum' %}
+        <button class="gm-auth gm-auth-secondary gm-ai-action" type="button" onclick="toggleAiChat()" data-gm-i18n="ai-guide">🤖 المرشد الذكي AI</button>
+      {% endif %}
+      <form action="{% url 'set_language' %}" method="post" class="gm-language" aria-label="اختيار اللغة">
+        {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <label for="site-language" class="sr-only">Language</label>
+        <select id="site-language" name="language" onchange="const input=this.form.elements.next;const parts=input.value.split('?');if(parts.length>1){const query=parts.slice(1).join('?').split('#')[0].split('&').filter(part=>!part.startsWith('lang=')).join('&');input.value=parts[0]+(query?'?'+query:'')}this.form.submit()" aria-label="اختيار اللغة">
+          {% get_current_language as CURRENT_LANGUAGE %}
+          <option value="ar" {% if CURRENT_LANGUAGE == 'ar' %}selected{% endif %}>العربية</option>
+          <option value="fr" {% if CURRENT_LANGUAGE == 'fr' %}selected{% endif %}>Français</option>
+          <option value="en" {% if CURRENT_LANGUAGE == 'en' %}selected{% endif %}>English</option>
+          <option value="tr" {% if CURRENT_LANGUAGE == 'tr' %}selected{% endif %}>Türkçe</option>
+          <option value="es" {% if CURRENT_LANGUAGE == 'es' %}selected{% endif %}>Español</option>
+        </select>
+      </form>
+      {% if user.is_authenticated %}
+        <a class="gm-auth gm-auth-primary" href="{% url 'dashboard_router' %}" data-gm-i18n="dashboard">لوحة التحكم</a>
+      {% else %}
+        <a class="gm-auth gm-auth-secondary" href="{% url 'login' %}" data-gm-i18n="login">تسجيل الدخول</a>
+        <a class="gm-auth gm-auth-primary gm-register" href="{% url 'register' %}" data-gm-i18n="register">إنشاء حساب</a>
+      {% endif %}
+    </div>
+  </div>
+</header>

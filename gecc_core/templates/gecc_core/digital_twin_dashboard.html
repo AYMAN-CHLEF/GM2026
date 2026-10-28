@@ -1,0 +1,628 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Geo-Memory | لوحة قيادة التوأم الرقمي والسيادة الذكية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- مكتبة الأيقونات FontAwesome الرسمية المحدثة -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- استدعاء ملفات MapLibre GL CSS و JS الرسمية -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+
+    <style>
+        /* تنسيق مخصص لتكبير الخريطة لتأخذ كامل الشاشة والعودة لحالها */
+        .map-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 100 !important;
+            padding: 20px !important;
+            border-radius: 0 !important;
+            background: white !important;
+        }
+        #map-container { transition: all 0.3s ease; }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dzGreen: '#006633', // الأخضر الجزائري العميق
+                        dzGold: '#D4AF37',   // الذهبي الأصيل
+                    }
+                }
+            }
+        }
+    </script>
+<link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans" onload="changeLanguage(currentLang); initMap();">
+{% include 'site_header.html' %}
+
+    <!-- الشريط العلوي الشامل -->
+    <div class="gm-context-strip"><span id="sovereign-status" data-gm-i18n="sovereign-status">حاوية سيادية محلية (Docker) - آمنة</span></div>
+
+    <!-- المحتوى الرئيسي للوحة القيادة -->
+    <main class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- القسم الأيسر: الخريطة والتحليل التنبؤي -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- الخريطة التفاعلية MapLibre GL مع أدوات تبديل الطبقات والارتفاعات وزر التكبير -->
+            <section id="map-container" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col relative">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+                    <h2 id="map-heading" class="text-lg font-extrabold text-gray-900 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-dzGold inline-block"></span> 
+                        الخريطة التفاعلية ونموذج الارتفاعات الرقمي والخدمات السياحية (DEM & GIS)
+                    </h2>
+                    
+                    <!-- أزرار تبديل أنماط الخريطة والارتفاعات مترجمة + زر تكبير الشاشة -->
+                    <div class="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl flex-wrap">
+                        <button onclick="switchBaseMap('google')" id="map-btn-google" class="px-3 py-1 bg-dzGreen text-white font-bold rounded-lg text-xs shadow-sm transition">خريطة Google</button>
+                        <button onclick="switchBaseMap('satellite')" id="map-btn-sat" class="px-3 py-1 text-gray-600 font-bold rounded-lg text-xs transition hover:text-dzGreen">قمر صناعي</button>
+                        <button onclick="toggleTerrain()" id="map-btn-terrain" class="px-3 py-1 bg-dzGold/20 text-dzGreen font-bold rounded-lg text-xs transition border border-dzGold/40"><i class="fas fa-mountain ml-1"></i> <span id="btn-text-terrain">الارتفاعات 3D</span></button>
+                        <button onclick="toggleMapFullscreen()" class="px-3 py-1 bg-gray-800 text-white font-bold rounded-lg text-xs transition hover:bg-dzGreen" title="ملء الشاشة">
+                            <i id="fullscreen-icon" class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- الحاوية الفعلية للخريطة -->
+                <div id="map" class="bg-gray-950 h-[380px] rounded-xl border border-dzGold/30 relative overflow-hidden shadow-inner z-10"></div>
+                
+                <div class="flex justify-between items-center mt-2 px-1">
+                    <p id="map-subtext" class="text-xs text-gray-500">خريطة ذكية للوجهة السياحية تجمع (نموذج الارتفاعات الرقمي DEM، نظم المعلومات الجغرافية GIS، المواقع والمعالم التراثية، الفنادق والمطاعم، المرشدين السياحيين، المسارات السياحية الذكية، حدود الولايات والبلديات)     </p>
+                    <span id="terrain-badge" class="text-[10px] text-gray-600 font-bold bg-gray-100 px-2 py-0.5 rounded">نموذج الارتفاعات مسطح (2D افتراضياً)</span>
+                </div>
+            </section>
+
+            <!-- محرك الذكاء التنبؤي (Predictive Analytics) -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="predictive-heading" class="text-base font-extrabold text-gray-900 flex items-center gap-2">
+                        <i class="fas fa-chart-line text-dzGold"></i> محرك الذكاء التنبؤي لإدارة الموارد الموسمية
+                        </h2>
+                    <span id="predicted-visits" class="text-xs font-bold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-lg">AI Analytics: {{ predicted_visits }} زائر متوقع</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <span id="pred-card-1-tag" class="text-xs font-bold text-dzGreen block mb-1">الذروة القادمة (موسم السياحة الواحاتية)</span>
+                        <h4 id="pred-card-1-title" class="font-black text-gray-900 text-sm">أضرحة وقصور بشار (Bechar)</h4>
+                        <p id="pred-card-1-desc" class="text-xs text-gray-500 mt-1">ارتفاع متوقع في الطلب بنسبة +42% - يوصى بتوجيه فرق الصيانة.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <span id="pred-card-2-tag" class="text-xs font-bold text-dzGreen block mb-1">توزيع فرق التدخل</span>
+                        <h4 id="pred-card-2-title" class="font-black text-gray-900 text-sm">محور التراث الساحلي (الشلف)</h4>
+                        <p id="pred-card-2-desc" class="text-xs text-gray-500 mt-1">جاهزية عالية ومراقبة مستمرة للمخاطر الطبيعية على المعالم.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <span id="pred-card-3-tag" class="text-xs font-bold text-dzGreen block mb-1">الحملات الترويجية</span>
+                        <h4 id="pred-card-3-title" class="font-black text-gray-900 text-sm">المسارات الرقمية الذكية</h4>
+                        <p id="pred-card-3-desc" class="text-xs text-gray-500 mt-1">تفعيل الدعاية الموجهة قبل 3 أسابيع من ذروة الزيارات.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- القسم الأيمن: الأصول التراثية وإدارة دورة حياتها -->
+        <div class="space-y-6">
+            
+            <!-- لوحة الأصول والتاريخ التشغيلي (Heritage Asset Lifecycle) -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="assets-heading" class="text-lg font-extrabold text-gray-900">🏛️ الأصول ودورة الحياة</h2>
+                    <span class="text-xs font-bold text-gray-400">Lifecycle DB</span>
+                </div>
+                <div id="assets-list" class="space-y-3 overflow-y-auto h-[380px] pr-1">
+                    <p class="text-gray-400 text-sm text-center py-10">جاري تحميل البيانات الهندسية...</p>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- التذييل مع بطاقة سيادة البيانات -->
+    
+
+    <!-- قاموس النصوص ودوال التشغيل والخريطة التفاعلية مع دعم الارتفاعات وتكامل الخدمات -->
+    <script>
+        const API_URL = '/api/gecc/heritage-assets/';
+        const MAP_DATA_URL = '/api/gecc/map-data/';
+        let currentLang = '{{ LANGUAGE_CODE|default:'ar' }}';
+        let map;
+        let markersList = [];
+        let isTerrainActive = false;
+        let isFullscreen = false;
+
+        const translations = {
+            ar: {
+                pageTitle: "Geo-Memory | لوحة قيادة التوأم الرقمي والسيادة الذكية",
+                lblLang: "اللغة:",
+                mapHeading: "الخريطة التفاعلية ونموذج الارتفاعات الرقمي والخدمات السياحية (DEM & GIS)",
+                mapSubtext: "تتبع المعالم التراثية، الفنادق، المطاعم، والمرشدين السياحيين مع تظليل حدود الولايات والبلديات",
+                assetsHeading: "🏛️ الأصول ودورة الحياة",
+                predictiveHeading: "محرك الذكاء التنبؤي لإدارة الموارد الموسمية",
+                sovereignStatus: "حاوية سيادية محلية (Docker) - آمنة",
+                dockerNote: "بيئة محلية معزولة (Local Docker) - حماية كاملة لسيادة البيانات التراثية.",
+                footerDesc: "| نظام التوأم الرقمي والسيادة المكانية الآمنة.",
+                loadingText: "جاري تحميل البيانات الهندسية...",
+                emptyData: "لا توجد بيانات مضافة بعد.",
+                serverError: "تعذر الاتصال بالخادم الداخلي.",
+                noName: "بدون اسم",
+                noDesc: "لا يوجد وصف متاح",
+                managed: "مُدار مؤسسياً",
+                lastMaint: "آخر صيانة:",
+                statusLabel: "الحالة:",
+                statusStable: "مستقر",
+                btnGoogleMap: "خريطة Google",
+                btnSat: "قمر صناعي",
+                btnTerrain: "الارتفاعات 3D"
+                ,terrainFlat: "نموذج الارتفاعات مسطح (2D افتراضياً)"
+                ,predictedVisits: "تحليلات الذكاء الاصطناعي: {{ predicted_visits }} زائر متوقع"
+                ,predCard1Tag: "الذروة القادمة (موسم السياحة الواحاتية)"
+                ,predCard1Title: "أضرحة وقصور بشار (Bechar)"
+                ,predCard1Desc: "ارتفاع متوقع في الطلب بنسبة +42% - يوصى بتوجيه فرق الصيانة."
+                ,predCard2Tag: "توزيع فرق التدخل"
+                ,predCard2Title: "محور التراث الساحلي (الشلف)"
+                ,predCard2Desc: "جاهزية عالية ومراقبة مستمرة للمخاطر الطبيعية على المعالم."
+                ,predCard3Tag: "الحملات الترويجية"
+                ,predCard3Title: "المسارات الرقمية الذكية"
+                ,predCard3Desc: "تفعيل الدعاية الموجهة قبل 3 أسابيع من ذروة الزيارات."
+            },
+            fr: {
+                pageTitle: "Geo-Memory | Tableau de bord du Jumeau Numérique et Souveraineté",
+                lblLang: "Langue:",
+                mapHeading: "Carte interactive, DEM et Services Touristiques",
+                mapSubtext: "Suivi du patrimoine, hôtels, restaurants et guides avec ombrage des wilayas",
+                assetsHeading: "🏛️ Actifs et Cycle de Vie",
+                predictiveHeading: "Moteur d'Analyse Prédictive pour la Gestion des Ressources",
+                sovereignStatus: "Conteneur souverain local (Docker) - Sécurisé",
+                dockerNote: "Environnement local isolé (Docker) - Protection totale des données patrimoniales.",
+                footerDesc: "| Système de Jumeau Numérique et de Souveraineté Spatiale Sécurisée.",
+                loadingText: "Chargement des données géospatiales...",
+                emptyData: "Aucune donnée ajoutée pour le moment.",
+                serverError: "Impossible de se connecter au serveur interne.",
+                noName: "Sans nom",
+                noDesc: "Aucune description disponible",
+                managed: "Géré institutionnellement",
+                lastMaint: "Dernière maintenance :",
+                statusLabel: "Statut :",
+                statusStable: "Stable",
+                btnGoogleMap: "Google Maps",
+                btnSat: "Satellite",
+                btnTerrain: "Relief 3D"
+                ,terrainFlat: "Relief plat (2D par défaut)"
+                ,predictedVisits: "Analytique IA : {{ predicted_visits }} visiteurs prévus"
+                ,predCard1Tag: "Prochain pic (tourisme oasien)"
+                ,predCard1Title: "Mausolées et palais de Béchar"
+                ,predCard1Desc: "Hausse de demande prévue de 42 % - renforcer les équipes de maintenance."
+                ,predCard2Tag: "Répartition des équipes"
+                ,predCard2Title: "Axe du patrimoine côtier (Chlef)"
+                ,predCard2Desc: "Forte préparation et surveillance des risques naturels sur les sites."
+                ,predCard3Tag: "Campagnes promotionnelles"
+                ,predCard3Title: "Itinéraires numériques intelligents"
+                ,predCard3Desc: "Lancer la promotion ciblée trois semaines avant le pic des visites."
+            },
+            en: {
+                pageTitle: "Geo-Memory | Digital Twin & Sovereign Intelligence Dashboard",
+                lblLang: "Language:",
+                mapHeading: "Interactive Map, DEM & Tourist Services",
+                mapSubtext: "Tracking heritage assets, hotels, restaurants, and guides with wilaya shading",
+                assetsHeading: "🏛️ Assets & Lifecycle",
+                predictiveHeading: "Predictive Analytics Engine for Resource Management",
+                sovereignStatus: "Local Sovereign Container (Docker) - Secure",
+                dockerNote: "Isolated Local Environment (Docker) - Full Sovereignty of Heritage Data.",
+                footerDesc: "| Digital Twin & Secure Spatial Sovereignty System.",
+                loadingText: "Loading geospatial data...",
+                emptyData: "No data added yet.",
+                serverError: "Failed to connect to the internal server.",
+                noName: "Unnamed",
+                noDesc: "No description available",
+                managed: "Institutionally Managed",
+                lastMaint: "Last Maintenance:",
+                statusLabel: "Status:",
+                statusStable: "Stable",
+                btnGoogleMap: "Google Map",
+                btnSat: "Satellite",
+                btnTerrain: "3D Relief"
+                ,terrainFlat: "Flat relief (2D by default)"
+                ,predictedVisits: "AI analytics: {{ predicted_visits }} visitors expected"
+                ,predCard1Tag: "Next peak (oasis tourism season)"
+                ,predCard1Title: "Bechar mausoleums and palaces"
+                ,predCard1Desc: "Demand is expected to rise by 42% — direct maintenance teams accordingly."
+                ,predCard2Tag: "Response team allocation"
+                ,predCard2Title: "Coastal heritage corridor (Chlef)"
+                ,predCard2Desc: "High readiness with ongoing monitoring of natural risks to heritage sites."
+                ,predCard3Tag: "Promotional campaigns"
+                ,predCard3Title: "Smart digital routes"
+                ,predCard3Desc: "Start targeted promotion three weeks before the visit peak."
+            },
+            es: {
+                pageTitle: "Geo-Memory | Panel del gemelo digital e inteligencia soberana",
+                lblLang: "Idioma:",
+                mapHeading: "Mapa interactivo, modelo digital de elevación y servicios turísticos",
+                mapSubtext: "Consulta sitios patrimoniales, hoteles, restaurantes y guías turísticos con los límites territoriales",
+                assetsHeading: "🏛️ Activos y ciclo de vida",
+                predictiveHeading: "Motor de análisis predictivo para la gestión de recursos",
+                sovereignStatus: "Contenedor local soberano (Docker) - Seguro",
+                dockerNote: "Entorno local aislado (Docker) para proteger los datos patrimoniales.",
+                footerDesc: "| Sistema de gemelo digital y soberanía espacial segura.",
+                loadingText: "Cargando datos geoespaciales...",
+                emptyData: "Todavía no hay datos añadidos.",
+                serverError: "No se pudo conectar con el servidor interno.",
+                noName: "Sin nombre",
+                noDesc: "No hay descripción disponible",
+                managed: "Gestionado por una institución",
+                lastMaint: "Último mantenimiento:",
+                statusLabel: "Estado:",
+                statusStable: "Estable",
+                btnGoogleMap: "Google Maps",
+                btnSat: "Satélite",
+                btnTerrain: "Relieve 3D"
+                ,terrainFlat: "Relieve plano (2D por defecto)"
+                ,predictedVisits: "Análisis IA: {{ predicted_visits }} visitantes previstos"
+                ,predCard1Tag: "Próximo pico (temporada de turismo de oasis)"
+                ,predCard1Title: "Mausoleos y palacios de Béchar"
+                ,predCard1Desc: "Se prevé un aumento de la demanda del 42 %; se recomienda reforzar el mantenimiento."
+                ,predCard2Tag: "Distribución de equipos de intervención"
+                ,predCard2Title: "Corredor del patrimonio costero (Chlef)"
+                ,predCard2Desc: "Alta preparación y seguimiento continuo de riesgos naturales en los sitios."
+                ,predCard3Tag: "Campañas promocionales"
+                ,predCard3Title: "Rutas digitales inteligentes"
+                ,predCard3Desc: "Activar la promoción dirigida tres semanas antes del pico de visitas."
+            },
+            tr: {
+                pageTitle: "Geo-Memory | Dijital İkiz ve Egemen Zekâ Paneli",
+                lblLang: "Dil:",
+                mapHeading: "Etkileşimli harita, sayısal yükseklik modeli ve turizm hizmetleri",
+                mapSubtext: "Miras alanlarını, otelleri, restoranları ve rehberleri il sınırı bilgileriyle görüntüleyin",
+                assetsHeading: "🏛️ Varlıklar ve yaşam döngüsü",
+                predictiveHeading: "Kaynak yönetimi için tahmine dayalı analiz",
+                sovereignStatus: "Yerel egemen kapsayıcı (Docker) - Güvenli",
+                dockerNote: "Miras verilerini koruyan yalıtılmış yerel ortam (Docker).",
+                footerDesc: "| Dijital ikiz ve güvenli mekânsal egemenlik sistemi.",
+                loadingText: "Coğrafi veriler yükleniyor...",
+                emptyData: "Henüz veri eklenmedi.",
+                serverError: "Dahili sunucuya bağlanılamadı.",
+                noName: "İsimsiz",
+                noDesc: "Açıklama yok",
+                managed: "Kurum tarafından yönetiliyor",
+                lastMaint: "Son bakım:",
+                statusLabel: "Durum:",
+                statusStable: "Kararlı",
+                btnGoogleMap: "Google Haritalar",
+                btnSat: "Uydu",
+                btnTerrain: "3B arazi",
+                terrainFlat: "Düz arazi (varsayılan 2B)",
+                predictedVisits: "Yapay zekâ analizi: {{ predicted_visits }} ziyaretçi bekleniyor",
+                predCard1Tag: "Yaklaşan yoğunluk (vaha turizmi sezonu)",
+                predCard1Title: "Beşar türbeleri ve sarayları",
+                predCard1Desc: "Talebin %42 artması bekleniyor; bakım ekiplerinin yönlendirilmesi önerilir.",
+                predCard2Tag: "Müdahale ekiplerinin dağılımı",
+                predCard2Title: "Kıyı mirası koridoru (Şelf)",
+                predCard2Desc: "Yüksek hazırlık ve alanlardaki doğal risklerin sürekli izlenmesi.",
+                predCard3Tag: "Tanıtım kampanyaları",
+                predCard3Title: "Akıllı dijital rotalar",
+                predCard3Desc: "Ziyaret yoğunluğundan üç hafta önce hedefli tanıtımı başlatın."
+            }
+        };
+
+        // تهيئة الخريطة مع تظليل حدود الولايات والبلديات بوضوح وخرائط Google
+        function initMap() {
+            if (map) return;
+            map = new maplibregl.Map({
+                container: 'map',
+                style: {
+                    'version': 8,
+                    'sources': {
+                        'google-map': {
+                            'type': 'raster',
+                            'tiles': ['https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'],
+                            'tileSize': 256,
+                            'maxzoom': 20
+                        },
+                        'satellite': {
+                            'type': 'raster',
+                            'tiles': ['https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'],
+                            'tileSize': 256,
+                            'maxzoom': 20
+                        },
+                        'terrain-source': {
+                            'type': 'raster-dem',
+                            'tiles': ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+                            'tileSize': 256,
+                            'maxzoom': 15
+                        },
+                        'wilayas-source': {
+                            'type': 'geojson',
+                            'data': '{% static "data/algeria_wilayas.json" %}'
+                        },
+                        'communes-source': {
+                            'type': 'geojson',
+                            'data': '{% static "data/algeria_communes.json" %}'
+                        }
+                    },
+                    'layers': [
+                        { 'id': 'google-layer', 'type': 'raster', 'source': 'google-map' },
+                        { 'id': 'sat-layer', 'type': 'raster', 'source': 'satellite', 'layout': { 'visibility': 'none' } },
+                        
+                        // تظليل الولايات فوق الخريطة بلون مميز وشفافية واضحة
+                        {
+                            'id': 'wilayas-fill-layer',
+                            'type': 'fill',
+                            'source': 'wilayas-source',
+                            'paint': {
+                                'fill-color': '#006633',
+                                'fill-opacity': 0.12,
+                                'fill-outline-color': '#004422'
+                            }
+                        },
+                        {
+                            'id': 'wilayas-outline-layer',
+                            'type': 'line',
+                            'source': 'wilayas-source',
+                            'paint': {
+                                'line-color': '#006633',
+                                'line-width': 2.0,
+                                'line-opacity': 0.9
+                            }
+                        },
+                        // تظليل البلديات بحدود ذهبية واضحة تظهر عند التقريب
+                        {
+                            'id': 'communes-fill-layer',
+                            'type': 'fill',
+                            'source': 'communes-source',
+                            'minzoom': 7,
+                            'paint': {
+                                'fill-color': '#D4AF37',
+                                'fill-opacity': 0.15,
+                                'fill-outline-color': '#B38F27'
+                            }
+                        },
+                        {
+                            'id': 'communes-outline-layer',
+                            'type': 'line',
+                            'source': 'communes-source',
+                            'minzoom': 7,
+                            'paint': {
+                                'line-color': '#D4AF37',
+                                'line-width': 1.0,
+                                'line-opacity': 0.7
+                            }
+                        }
+                    ]
+                },
+                center: [3.0, 28.0], // عرض كامل خريطة الجزائر
+                zoom: 4.8,          
+                pitch: 0             // مسطح تماماً 2D افتراضياً
+            });
+
+            map.addControl(new maplibregl.NavigationControl(), 'top-left');
+
+            map.on('load', () => {
+                loadMapData();
+            });
+        }
+
+        // دالة تبديل خرائط الأساس بين خريطة Google والقمر الصناعي
+        function switchBaseMap(type) {
+            if (type === 'google') {
+                map.setLayoutProperty('google-layer', 'visibility', 'visible');
+                map.setLayoutProperty('sat-layer', 'visibility', 'none');
+                document.getElementById('map-btn-google').className = "px-3 py-1 bg-dzGreen text-white font-bold rounded-lg text-xs shadow-sm transition";
+                document.getElementById('map-btn-sat').className = "px-3 py-1 text-gray-600 font-bold rounded-lg text-xs transition hover:text-dzGreen";
+            } else {
+                map.setLayoutProperty('google-layer', 'visibility', 'none');
+                map.setLayoutProperty('sat-layer', 'visibility', 'visible');
+                document.getElementById('map-btn-sat').className = "px-3 py-1 bg-dzGreen text-white font-bold rounded-lg text-xs shadow-sm transition";
+                document.getElementById('map-btn-google').className = "px-3 py-1 text-gray-600 font-bold rounded-lg text-xs transition hover:text-dzGreen";
+            }
+        }
+
+        // دالة تفعيل/إلغاء نموذج الارتفاعات 3D عند النقر فقط
+        function toggleTerrain() {
+            isTerrainActive = !isTerrainActive;
+            const t = translations[currentLang] || translations.en;
+            if (isTerrainActive) {
+                map.setTerrain({ 'source': 'terrain-source', 'exaggeration': 2.0 });
+                map.easeTo({ pitch: 55, duration: 1000 });
+                document.getElementById('map-btn-terrain').className = "px-3 py-1 bg-dzGreen text-white font-bold rounded-lg text-xs transition border border-dzGold shadow-sm";
+                document.getElementById('terrain-badge').innerText = currentLang === 'ar' ? "نموذج الارتفاعات ثلاثي الأبعاد (3D DEM) مفعل" : (currentLang === 'fr' ? "Relief 3D activé" : (currentLang === 'es' ? "Relieve 3D activado" : (currentLang === 'tr' ? "3D arazi etkin" : "3D DEM Enabled")));
+            } else {
+                map.setTerrain(null);
+                map.easeTo({ pitch: 0, duration: 1000 });
+                document.getElementById('map-btn-terrain').className = "px-3 py-1 bg-dzGold/20 text-dzGreen font-bold rounded-lg text-xs transition border border-dzGold/40";
+                document.getElementById('terrain-badge').innerText = currentLang === 'ar' ? "نموذج الارتفاعات مسطح (2D)" : (currentLang === 'fr' ? "Relief plat (2D)" : (currentLang === 'es' ? "Relieve plano (2D)" : (currentLang === 'tr' ? "Düz arazi (2D)" : "Flat DEM (2D)")));
+            }
+        }
+
+        // دالة تكبير الخريطة لملء الشاشة
+        function toggleMapFullscreen() {
+            const container = document.getElementById('map-container');
+            const icon = document.getElementById('fullscreen-icon');
+            
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                container.classList.add('map-fullscreen');
+                icon.className = 'fas fa-compress';
+            } else {
+                container.classList.remove('map-fullscreen');
+                icon.className = 'fas fa-expand';
+            }
+            map.resize();
+        }
+
+        // جلب وتوزيع المعالم والخدمات السياحية مع أيقونات FontAwesome المخصصة على الخريطة
+        async function loadMapData() {
+            try {
+                let response = await fetch(MAP_DATA_URL);
+                let data = await response.json();
+
+                if (data.status === 'success') {
+                    markersList.forEach(m => m.remove());
+                    markersList = [];
+
+                    // 1. إضافة المعالم التراثية مع أيقونة معلم تاريخي fa-landmark
+                    if (data.heritage_assets) {
+                        data.heritage_assets.forEach(asset => {
+                            if (asset.latitude && asset.longitude) {
+                                const el = document.createElement('div');
+                                el.className = 'flex items-center justify-center w-9 h-9 bg-dzGold text-white rounded-full shadow-lg border-2 border-white cursor-pointer';
+                                el.innerHTML = '<i class="fas fa-landmark text-xs"></i>';
+
+                                const popup = new maplibregl.Popup({ offset: 25 }).setHTML(`
+                                    <div style="text-align: right; direction: rtl; font-family: sans-serif;">
+                                        <h4 style="font-weight: bold; color: #006633; margin-bottom: 4px;"><i class="fas fa-landmark" style="margin-left: 4px; color: #D4AF37;"></i> ${asset.name}</h4>
+                                        <p style="font-size: 12px; color: #555; margin: 0;">${asset.description || ''}</p>
+                                        <span style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">معلم تراثي</span>
+                                    </div>
+                                `);
+
+                                const marker = new maplibregl.Marker(el)
+                                    .setLngLat([asset.longitude, asset.latitude])
+                                    .setPopup(popup)
+                                    .addTo(map);
+
+                                markersList.push(marker);
+                            }
+                        });
+                    }
+
+                    // 2. إضافة الخدمات السياحية مع الأيقونات المخصصة
+                    if (data.tourist_services) {
+                        data.tourist_services.forEach(service => {
+                            if (service.latitude && service.longitude) {
+                                const el = document.createElement('div');
+                                
+                                let bgColor = 'bg-emerald-600';
+                                let iconClass = 'fa-bed';
+
+                                if (service.category === 'hotel') {
+                                    bgColor = 'bg-blue-600';
+                                    iconClass = 'fa-hotel';
+                                } else if (service.category === 'restaurant') {
+                                    bgColor = 'bg-red-600';
+                                    iconClass = 'fa-utensils';
+                                } else if (service.category === 'guide') {
+                                    bgColor = 'bg-amber-700';
+                                    iconClass = 'fa-user-tie';
+                                }
+
+                                el.className = `flex items-center justify-center w-9 h-9 rounded-full shadow-lg border-2 border-white cursor-pointer ${bgColor} text-white`;
+                                el.innerHTML = `<i class="fas ${iconClass} text-xs"></i>`;
+
+                                const popup = new maplibregl.Popup({ offset: 25 }).setHTML(`
+                                    <div style="text-align: right; direction: rtl; font-family: sans-serif; max-width: 200px;">
+                                        ${service.image_url ? `<img src="${service.image_url}" style="width:100%; height:100px; object-fit:cover; border-radius:4px; margin-bottom:6px;">` : ''}
+                                        <h4 style="font-weight: bold; color: #006633; margin-bottom: 2px;"><i class="fas ${iconClass}" style="margin-left: 4px;"></i> ${service.name}</h4>
+                                        <span style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">${service.category_display || service.category}</span>
+                                        <p style="font-size: 11px; color: #555; margin: 0;">${service.description || ''}</p>
+                                        ${service.price ? `<p style="font-size: 11px; font-weight:bold; color: #111; margin-top: 4px;">السعر: ${service.price} دج</p>` : ''}
+                                        ${service.phone ? `<p style="font-size: 11px; color: #006633; margin-top: 2px;">📞 ${service.phone}</p>` : ''}
+                                    </div>
+                                `);
+
+                                const marker = new maplibregl.Marker(el)
+                                    .setLngLat([service.longitude, service.latitude])
+                                    .setPopup(popup)
+                                    .addTo(map);
+
+                                markersList.push(marker);
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("خطأ في جلب بيانات الخريطة الموحدة:", error);
+            }
+        }
+
+        async function changeLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+
+            const t = translations[lang] || translations.en;
+            const setText = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
+            const setHtml = (id, value) => { const el = document.getElementById(id); if (el) el.innerHTML = value; };
+            setText('page-title', t.pageTitle);
+            setHtml('map-heading', `<span class="w-3 h-3 rounded-full bg-dzGold inline-block"></span> ${t.mapHeading}`);
+            setText('map-subtext', t.mapSubtext);
+            setText('assets-heading', t.assetsHeading);
+            setHtml('predictive-heading', `<i class="fas fa-chart-line text-dzGold"></i> ${t.predictiveHeading}`);
+            setText('sovereign-status', t.sovereignStatus);
+            setText('docker-note', t.dockerNote);
+            setText('footer-desc', t.footerDesc);
+            setText('map-btn-google', t.btnGoogleMap);
+            setText('map-btn-sat', t.btnSat);
+            setText('btn-text-terrain', t.btnTerrain);
+            setText('terrain-badge', t.terrainFlat);
+            setText('predicted-visits', t.predictedVisits);
+            setText('pred-card-1-tag', t.predCard1Tag);
+            setText('pred-card-1-title', t.predCard1Title);
+            setText('pred-card-1-desc', t.predCard1Desc);
+            setText('pred-card-2-tag', t.predCard2Tag);
+            setText('pred-card-2-title', t.predCard2Title);
+            setText('pred-card-2-desc', t.predCard2Desc);
+            setText('pred-card-3-tag', t.predCard3Tag);
+            setText('pred-card-3-title', t.predCard3Title);
+            setText('pred-card-3-desc', t.predCard3Desc);
+
+            await loadHeritageAssets(lang);
+        }
+
+        async function loadHeritageAssets(lang) {
+            const t = translations[lang] || translations.en;
+            let container = document.getElementById('assets-list');
+            container.innerHTML = `<p class="text-gray-400 text-sm text-center py-10">${t.loadingText}</p>`;
+
+            try {
+                let response = await fetch(API_URL, {
+                    headers: { 'Accept-Language': lang }
+                });
+                let data = await response.json();
+                container.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-gray-400 text-sm text-center py-10">${t.emptyData}</p>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    let card = document.createElement('div');
+                    card.className = 'p-4 bg-gray-50 border border-gray-100 rounded-xl shadow-sm hover:border-dzGold/50 transition-all';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-dzGreen text-base"><i class="fas fa-landmark text-dzGold ml-1.5 text-xs"></i>${item.name || t.noName}</h3>
+                            <span class="text-[10px] font-bold bg-dzGold/10 text-dzGold px-2 py-0.5 rounded">${t.managed}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1 leading-relaxed">${item.description || t.noDesc}</p>
+                        <div class="mt-2 pt-2 border-t border-gray-200/60 flex justify-between text-xs text-gray-400">
+                            <span>${t.lastMaint} 2025/11</span>
+                            <span class="text-dzGreen font-semibold">${t.statusLabel} ${t.statusStable}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("خطأ في الاتصال بالـ API:", error);
+                container.innerHTML = `<p class="text-red-500 text-sm text-center py-10">${t.serverError}</p>`;
+            }
+        }
+    </script>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+{% include 'site_footer.html' %}
+</body>
+</html>

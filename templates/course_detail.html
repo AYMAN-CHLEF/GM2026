@@ -1,0 +1,20 @@
+{% load static %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ course.title }} | Geo-Memory</title><script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="{% static 'css/site-wide.css' %}">
+</head>
+<body class="min-h-screen bg-slate-950 p-6 text-slate-100">
+{% include 'site_header.html' %}
+  
+  <main class="mx-auto max-w-5xl pt-16">
+    <a href="{% url 'gis:dashboard' %}" class="text-emerald-300">← {% if LANGUAGE_CODE == 'fr' %}Retour aux cours{% elif LANGUAGE_CODE == 'en' %}Back to courses{% elif LANGUAGE_CODE == 'tr' %}Kurslara dön{% elif LANGUAGE_CODE == 'es' %}Volver a los cursos{% else %}العودة إلى الدورات{% endif %}</a>
+    <header class="my-8 rounded-3xl border border-white/10 bg-white/5 p-8"><p class="text-sm font-bold uppercase tracking-widest text-amber-300">Geo-Memory · GIS</p><h1 class="mt-3 text-3xl font-black">{{ course.title }}</h1><p class="mt-4 max-w-3xl leading-8 text-slate-300">{{ course.description }}</p></header>
+    {% for module in course.modules.all %}<section class="mb-6 rounded-2xl border border-white/10 p-6"><h2 class="text-xl font-bold">{{ module.title }}</h2><ul class="mt-4 space-y-3">{% for lesson_item in module.lessons.all %}<li><a class="text-emerald-300 hover:underline" href="?lesson={{ lesson_item.id }}">{{ lesson_item.title }}</a></li>{% empty %}<li class="text-slate-400">—</li>{% endfor %}</ul></section>{% empty %}<p class="text-slate-300">{% if LANGUAGE_CODE == 'fr' %}Aucun module pour le moment.{% elif LANGUAGE_CODE == 'en' %}No modules have been added yet.{% elif LANGUAGE_CODE == 'tr' %}Henüz modül eklenmedi.{% elif LANGUAGE_CODE == 'es' %}Todavía no se han añadido módulos.{% else %}لم تتم إضافة وحدات بعد.{% endif %}</p>{% endfor %}
+    {% if lesson %}<article class="mt-8 rounded-2xl bg-white p-7 text-slate-900"><h2 class="text-2xl font-bold">{{ lesson.title }}</h2><div class="prose mt-4 max-w-none">{{ lesson.content|linebreaks }}</div>{% if lesson.video_url %}<a class="mt-5 inline-block text-emerald-700 underline" href="{{ lesson.video_url }}">{% if LANGUAGE_CODE == 'fr' %}Voir la vidéo{% elif LANGUAGE_CODE == 'en' %}Watch lesson video{% elif LANGUAGE_CODE == 'tr' %}Ders videosunu izle{% elif LANGUAGE_CODE == 'es' %}Ver el vídeo de la lección{% else %}مشاهدة فيديو الدرس{% endif %}</a>{% endif %}</article>{% endif %}
+  </main>
+<script src="{% static 'js/site-wide-i18n.js' %}" defer></script>
+
+
+{% include 'site_footer.html' %}
+</body></html>
